@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <body>
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Ticketr</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ticker in list_ticker %}
+            <tr>
+              <th scope="row">{{ ticker.pk }}</th>
+              <td>{{ ticker.name }}</td>
+              <td>{{ ticker.ticker }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </body>
+</html>
+{% endblock %}
