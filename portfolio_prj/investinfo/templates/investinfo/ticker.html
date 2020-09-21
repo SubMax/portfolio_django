@@ -1,9 +1,15 @@
 {% extends 'base.html' %}
 
+{% block favicon %}
+    {{logo_url}}
+{% endblock %}
+
 {% block title %}
-    {{ ticker.ticker }}
+    {{ ticker }}
 {% endblock %}
 
 {% block content %}
-    {{ ticker.discription }}
+    <img src="{{logo_url}}" alt="logo">
+    <h1>{{ name }}</h1>
+    <p>{{ description }}</p>
 {% endblock %}

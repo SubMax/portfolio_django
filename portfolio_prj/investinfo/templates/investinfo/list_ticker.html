@@ -6,6 +6,13 @@
 
 {% block content %}
     <body>
+        <form method="post" class="input-group mb-3">
+            {% csrf_token %}
+            {{ tickerform }}
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="submit">Найти</button>
+            </div>
+        </form>
         <table class="table">
           <thead class="thead-dark">
             <tr>
@@ -17,7 +24,7 @@
           <tbody>
             {% for ticker in list_ticker %}
             <tr>
-              <th scope="row">{{ ticker.pk }}</th>
+              <th scope="row"><img height="25%" src="{{ ticker.logo_url }}" alt="logo"></th>
                 <td><a class="p-2 text-dark" href="/investinfo/{{ ticker.pk }}">{{ ticker.name }}</a></td>
                 <td><a class="p-2 text-dark" href="/investinfo/{{ ticker.pk }}">{{ ticker.ticker }}</a></td>
             </tr>
