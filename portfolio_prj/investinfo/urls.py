@@ -4,4 +4,5 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('<int:pk>', views.InfoTicker.as_view(), name='info'),
 ]

@@ -1,10 +1,10 @@
-from .models import Ticket
-from django.forms import ModelForm, TextInput
+from .models import Ticker, DiscriptionTicker
+from django.forms import ModelForm, TextInput, Textarea
 
 
 class TicketForm(ModelForm):
     class Meta:
-        model = Ticket
+        model = Ticker
         fields = ['ticker', 'name']
         widgets = {
             'ticker': TextInput(attrs={
@@ -14,5 +14,19 @@ class TicketForm(ModelForm):
             'name': TextInput(attrs={
                 'class': "form-control",
                 'placeholder': "result"
+            })
+        }
+
+
+class DiscriptionTickerForm(ModelForm):
+    class Meta:
+        model = DiscriptionTicker
+        fields = ['ticker', 'discription']
+        widgets = {
+            'ticker': TextInput(attrs={
+                'class': "form-control"
+            }),
+            'discription': Textarea(attrs={
+                'class': "form-control"
             })
         }
