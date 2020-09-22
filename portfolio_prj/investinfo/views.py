@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Ticker
 from .forms import TicketForm
 from .stockData import getStockData
@@ -12,10 +12,15 @@ def index(request):
     """
 
     if request.method == "POST":
-        data = getStockData(request.POST['ticker'])
+        request_ticker = request.POST['ticker'].upper()
+
+        if Ticker.objects.get(ticker=request_ticker):
+            return redirect('ticker_info', ticker=request_ticker)
+
+        data = getStockData(request_ticker)
         new_ticker = Ticker(name=data[1], ticker=data[0], description=data[2], logo_url=data[3])
         new_ticker.save()
-        return descriptionTicker(request, data[0])
+        return descriptionTicker(request, request_ticker)
 
     list_ticker = Ticker.objects.all().order_by('ticker')
     tickerform = TicketForm()
