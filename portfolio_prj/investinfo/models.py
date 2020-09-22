@@ -7,3 +7,13 @@ class Ticker(models.Model):
     description = models.TextField(default="no descriptions")
     logo_url = models.CharField(max_length=100, default='https://logo.clearbit.com/')
 
+
+class Data(models.Model):
+    ticker = models.ForeignKey('Ticker', on_delete=models.CASCADE)
+    datetime = models.DateTimeField()
+    open = models.DecimalField(max_digits=11, decimal_places=5)
+    high = models.DecimalField(max_digits=11, decimal_places=5)
+    low = models.DecimalField(max_digits=11, decimal_places=5)
+    close = models.DecimalField(max_digits=11, decimal_places=5)
+    adjclose = models.DecimalField(max_digits=11, decimal_places=5)
+    volume = models.IntegerField()
