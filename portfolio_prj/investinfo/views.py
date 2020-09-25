@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404
 from .models import Ticker, Data
-from .forms import TickerForm
+from .forms import TickerForm, DateForm
 from .stockData import getStockData, fetchData
 import re
 
@@ -15,14 +15,15 @@ def index(request):
 
     if request.method == "POST":
         request_ticker = request.POST['ticker'].upper()
-
-        if Ticker.objects.get(ticker=request_ticker):
-            return redirect('ticker_info', ticker=request_ticker)
-
-        data = getStockData(request_ticker)
-        new_ticker = Ticker(name=data[1], ticker=data[0], description=data[2], logo_url=data[3])
-        new_ticker.save()
-        return descriptionTicker(request, request_ticker)
+        try:
+            if Ticker.objects.get(ticker=request_ticker):
+                return redirect('ticker_info', ticker=request_ticker)
+        except Ticker.DoesNotExist:
+            print("DoseNotExist")
+            data = getStockData(request_ticker)
+            new_ticker = Ticker(name=data[1], ticker=data[0], description=data[2], logo_url=data[3])
+            new_ticker.save()
+            return descriptionTicker(request, request_ticker)
 
     list_ticker = Ticker.objects.all().order_by('ticker')
     tickerform = TickerForm()
@@ -54,9 +55,16 @@ def descriptionTicker(request, ticker, text=None, ystart='', mstart='', dstart='
     :param ticker: краткое название биржевого инструмента
     :return:
     """
+    if request.method == "POST":
+        fetchData(ticker, request.POST['start'], request.POST['end'], interval='30m')
+        ystart, mstart, dstart = dateToLst(request.POST['start'])
+        yend, mend, dend = dateToLst(request.POST['end'])
+        interval = '30m'
+        return redirect('chartdate', text='chart', ticker=ticker, ystart=ystart, mstart=mstart, dstart=dstart, yend=yend, mend=mend, dend=dend, interval=interval)
+
     if text and ystart:
-        start = checkDate(ystart, mstart, dstart)
-        end = checkDate(yend, mend, dend)
+        start = lstToDate([ystart, mstart, dstart])
+        end = lstToDate([yend, mend, dend])
         if start and end:
             fetchData(ticker, start, end, interval=interval)
 
@@ -64,13 +72,18 @@ def descriptionTicker(request, ticker, text=None, ystart='', mstart='', dstart='
     qdata = Data.objects.all().filter(ticker_id=ticker)
     date = [i[0] for i in qdata.values_list('datetime')]
     adjclose = [float(i[0]) for i in qdata.values_list('adjclose')]
+
+    dateform = DateForm()
+    # print(dateform)
+
     context = {
         'title': info.ticker,
         'name': info.name,
         'description': info.description,
         'logo_url': info.logo_url,
         'date': date,
-        'adjclose': adjclose  # stockDataJS(request, ticker)
+        'adjclose': adjclose,  # stockDataJS(request, ticker)
+        'dateform': dateform
     }
     if text == "chart":
         return render(request, 'investinfo/stockdata.html', context=context)
@@ -85,10 +98,25 @@ def stockDataJS(request, ticker, date=[0, 1, 2, 3]):
     })
 
 
-def checkDate(year, month, day):
+def lstToDate(lst):
+    """
+    :param lst: list [гггг, мм, дд]
+    :return: date гггг-мм-дд
+    """
+    year, month, day = lst
     date = '-'.join([str(year), str(month), str(day)])
     pattern = r'\d\d\d\d-\d\d-\d\d'
     result = re.search(pattern, date)
     if result:
         return result.string
     return result
+
+
+def dateToLst(date):
+    """
+    :param date: str
+    :return: list
+    """
+    lst = str.split(date, sep='-')
+
+    return lst
