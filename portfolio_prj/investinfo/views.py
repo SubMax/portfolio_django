@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
-from .models import Ticker
-from .forms import TicketForm
-from .stockData import getStockData
+from django.http import JsonResponse, Http404
+from .models import Ticker, Data
+from .forms import TickerForm
+from .stockData import getStockData, fetchData
+import re
 
 
 def index(request):
@@ -23,7 +25,7 @@ def index(request):
         return descriptionTicker(request, request_ticker)
 
     list_ticker = Ticker.objects.all().order_by('ticker')
-    tickerform = TicketForm()
+    tickerform = TickerForm()
     trushlabel = tickerform.fields.get('ticker')  # удаляем ненужную подпись
     trushlabel.label = ''
 
@@ -35,19 +37,58 @@ def index(request):
     return render(request, 'investinfo/list_ticker.html', context=context)
 
 
-def descriptionTicker(request, ticker):
+def descriptionTicker(request, ticker, text=None, ystart='', mstart='', dstart='', yend='', mend='', dend='', period='',
+                      interval=''):
     """
     Метод для отоброжения информации о инструменте
+    :param text: chart
+    :param ystart: гггг
+    :param mstart: мм
+    :param dstart: дд
+    :param yend: гггг
+    :param mend: мм
+    :param dend: дд
+    :param period: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
+    :param interval: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
     :param request: запрос
     :param ticker: краткое название биржевого инструмента
     :return:
     """
+    if text and ystart:
+        start = checkDate(ystart, mstart, dstart)
+        end = checkDate(yend, mend, dend)
+        if start and end:
+            fetchData(ticker, start, end, interval=interval)
 
-    qticker = Ticker.objects.get(ticker=ticker)
+    info = Ticker.objects.get(ticker=ticker)
+    qdata = Data.objects.all().filter(ticker_id=ticker)
+    date = [i[0] for i in qdata.values_list('datetime')]
+    adjclose = [float(i[0]) for i in qdata.values_list('adjclose')]
     context = {
-        'title': qticker.ticker,
-        'name': qticker.name,
-        'description': qticker.description,
-        'logo_url': qticker.logo_url
+        'title': info.ticker,
+        'name': info.name,
+        'description': info.description,
+        'logo_url': info.logo_url,
+        'date': date,
+        'adjclose': adjclose  # stockDataJS(request, ticker)
     }
+    if text == "chart":
+        return render(request, 'investinfo/stockdata.html', context=context)
+    elif text:
+        raise Http404
     return render(request, 'investinfo/ticker.html', context=context)
+
+
+def stockDataJS(request, ticker, date=[0, 1, 2, 3]):
+    return JsonResponse(data={
+        'ticker': ticker
+    })
+
+
+def checkDate(year, month, day):
+    date = '-'.join([str(year), str(month), str(day)])
+    pattern = r'\d\d\d\d-\d\d-\d\d'
+    result = re.search(pattern, date)
+    if result:
+        return result.string
+    return result

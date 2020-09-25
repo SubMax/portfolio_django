@@ -17,3 +17,6 @@ class Data(models.Model):
     close = models.DecimalField(max_digits=11, decimal_places=5)
     adjclose = models.DecimalField(max_digits=11, decimal_places=5)
     volume = models.IntegerField()
+
+    # def __str__(self):
+    #     return 's%' % self.datetime

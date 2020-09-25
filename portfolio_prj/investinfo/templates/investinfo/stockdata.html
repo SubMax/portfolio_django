@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block favicon %}
+    {{logo_url}}
+{% endblock %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block navi %}
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link" href="/investinfo/{{ title }}">Описание</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active" href="/investinfo/{{ title }}/chart">Детали</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+      </li>
+    </ul>
+{% endblock %}
+
+{% block date%}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-2">
+                <div class="row justify-content-md-left">
+                    <div class="btn-group-vertical">
+                        <p> </p>
+                        <input type="date" id="dateStart" max="2020-09-25">
+                        <input type="date" id="dateEnd" max="2020-09-25">
+                        <input type="submit" class="btn btn-secondary" value="Применить">
+                    </div>
+                </div>
+            </div>
+{% endblock %}
+
+{% block content %}
+            <div class="col">
+                <div class="conteiner">
+                    <canvas id="myChart"></canvas>
+                    <div id="tickerName">{{ticker}}</div>
+                    <script type="text/javascript">
+                        var ctx = document.getElementById('myChart').getContext('2d');
+                        var myLineChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: [{% for d in date %}'{{d}}',{% endfor %}],
+                                datasets: [{
+                                    data: [{% for d in adjclose %}'{{d}}',{% endfor %}],
+                                    label: "{{ title }}",
+                                    borderColor: "#3e95cd",
+                                    fill: false
+                                    }]
+                              },
+                              options: {
+                                title: {
+                                  display: true,
+                                  text: 'Скорректированная цена закрытия акции'
+                                }
+                              }
+                            });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

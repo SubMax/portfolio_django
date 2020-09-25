@@ -1,8 +1,8 @@
 from .models import Ticker
-from django.forms import ModelForm, TextInput, Textarea
+from django.forms import ModelForm, TextInput
 
 
-class TicketForm(ModelForm):
+class TickerForm(ModelForm):
     class Meta:
         model = Ticker
         fields = ['ticker']

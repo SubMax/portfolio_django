@@ -27,8 +27,8 @@ def fetchData(tickerName, start, end, period=None, interval='1h'):
     """
     Получение основной информации об инструменте
     :param tickerName:
-    :param start:  дддд-мм-дд
-    :param end: формат дддд-мм-дд
+    :param start:  гггг-мм-дд
+    :param end: формат гггг-мм-дд
     :param period: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
     :param interval: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
     """
@@ -42,6 +42,7 @@ def fetchData(tickerName, start, end, period=None, interval='1h'):
 
 
 if __name__ == "__main__":
-    print(getStockData('msft'))
-    print(fetchData('MSFT', start='2020-09-18', end='2020-09-19', interval='30m'))
+    # print(getStockData('msft'))
+    print(fetchData('MSFT', start='2020-09-19', end='2020-09-22', interval='15m'))
+
 

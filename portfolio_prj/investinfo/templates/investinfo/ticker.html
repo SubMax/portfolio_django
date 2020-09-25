@@ -5,11 +5,28 @@
 {% endblock %}
 
 {% block title %}
-    {{ ticker }}
+    {{ title }}
 {% endblock %}
-
+{% block navi %}
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" href="/investinfo/{{ title }}">Описание</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/investinfo/{{ title }}/chart/">Детали</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+      </li>
+    </ul>
+{% endblock %}
 {% block content %}
-    <img src="{{logo_url}}" alt="logo">
-    <h1>{{ name }}</h1>
-    <p>{{ description }}</p>
+    <div class="container">
+        <p style="text-align:center"><img src="{{logo_url}}" alt="logo"></p>
+        <h1 align="center">{{ name }}</h1>
+        <p>{{ description }}</p>
+    </div>
 {% endblock %}
