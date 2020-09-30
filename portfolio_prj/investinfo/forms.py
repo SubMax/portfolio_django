@@ -1,5 +1,6 @@
 from .models import Ticker
 from django.forms import ModelForm, Form, TextInput, DateField, formset_factory
+from datetime import date, timedelta
 
 
 class TickerForm(ModelForm):
@@ -18,8 +19,10 @@ class TickerForm(ModelForm):
 
 
 class DateForm(Form):
-    start = DateField(widget=TextInput(attrs={'type': "date"}), label='')
-    end = DateField(widget=TextInput(attrs={'type': "date"}), label='')
+    today = date.today()
+    yesterday = today - timedelta(days=1)
+    start = DateField(widget=TextInput(attrs={'type': "date", 'value': yesterday, 'max': today}), label='')
+    end = DateField(widget=TextInput(attrs={'type': "date", 'value': today, 'max': today}), label='')
     accept = DateField(widget=TextInput(attrs={
         'type': "submit",
         'class': "btn btn-secondary",
