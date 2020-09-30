@@ -1,5 +1,5 @@
 from .models import Ticker
-from django.forms import ModelForm, Form, TextInput, DateField, SelectDateWidget, CharField
+from django.forms import ModelForm, Form, TextInput, DateField, formset_factory
 
 
 class TickerForm(ModelForm):
@@ -20,3 +20,13 @@ class TickerForm(ModelForm):
 class DateForm(Form):
     start = DateField(widget=TextInput(attrs={'type': "date"}), label='')
     end = DateField(widget=TextInput(attrs={'type': "date"}), label='')
+    accept = DateField(widget=TextInput(attrs={
+        'type': "submit",
+        'class': "btn btn-secondary",
+        'value': "Применить"
+    }), label='')
+
+
+class MySetForm(Form):
+    my_set = formset_factory(DateForm)
+    set = my_set()

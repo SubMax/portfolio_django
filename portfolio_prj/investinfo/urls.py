@@ -3,8 +3,10 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='ticker_list'),
-    path(r'<slug:ticker>', views.descriptionTicker, name='ticker_info'),
-    path(r'<slug:ticker>/<str:text>/', views.descriptionTicker, name='chart'),
-    path(r'<slug:ticker>/<str:text>/<str:ystart>/<str:mstart>/<str:dstart>/<str:yend>/<str:mend>/<str:dend>/<slug'
-         r':interval>/', views.descriptionTicker, name='chartdate'),
+    path(r'<slug:ticker>', views.descriptionticker, name='ticker_info'),
+    path(r'<slug:ticker>/<str:text>/<slug:period>/<slug:interval>/', views.descriptionticker, name='chart'),
+    path(r'<slug:ticker>/<str:text>/<str:ystart>/<str:mstart>/<str:dstart>/'
+         r'<str:yend>/<str:mend>/<str:dend>/<slug:interval>/',
+         views.descriptionticker,
+         name='chartdate'),
 ]

@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404
 from .models import Ticker, Data
-from .forms import TickerForm, DateForm
-from .stockData import getStockData, fetchData
+from .forms import TickerForm, DateForm, MySetForm
+from .stockData import getstockdata, fetchdata
+from datetime import datetime, timedelta
 import re
 
 
@@ -20,10 +21,13 @@ def index(request):
                 return redirect('ticker_info', ticker=request_ticker)
         except Ticker.DoesNotExist:
             print("DoseNotExist")
-            data = getStockData(request_ticker)
-            new_ticker = Ticker(name=data[1], ticker=data[0], description=data[2], logo_url=data[3])
+            data = getstockdata(request_ticker)
+            new_ticker = Ticker(name=data[1],
+                                ticker=data[0],
+                                description=data[2],
+                                logo_url=data[3])
             new_ticker.save()
-            return descriptionTicker(request, request_ticker)
+            return descriptionticker(request, request_ticker)
 
     list_ticker = Ticker.objects.all().order_by('ticker')
     tickerform = TickerForm()
@@ -38,8 +42,7 @@ def index(request):
     return render(request, 'investinfo/list_ticker.html', context=context)
 
 
-def descriptionTicker(request, ticker, text=None, ystart='', mstart='', dstart='', yend='', mend='', dend='', period='',
-                      interval=''):
+def descriptionticker(request, ticker, text=None, **kwargs):
     """
     Метод для отоброжения информации о инструменте
     :param text: chart
@@ -55,36 +58,21 @@ def descriptionTicker(request, ticker, text=None, ystart='', mstart='', dstart='
     :param ticker: краткое название биржевого инструмента
     :return:
     """
-    if request.method == "POST":
-        fetchData(ticker, request.POST['start'], request.POST['end'], interval='30m')
-        ystart, mstart, dstart = dateToLst(request.POST['start'])
-        yend, mend, dend = dateToLst(request.POST['end'])
-        interval = '30m'
-        return redirect('chartdate', text='chart', ticker=ticker, ystart=ystart, mstart=mstart, dstart=dstart, yend=yend, mend=mend, dend=dend, interval=interval)
-
-    if text and ystart:
-        start = lstToDate([ystart, mstart, dstart])
-        end = lstToDate([yend, mend, dend])
-        if start and end:
-            fetchData(ticker, start, end, interval=interval)
-
     info = Ticker.objects.get(ticker=ticker)
-    qdata = Data.objects.all().filter(ticker_id=ticker)
-    date = [i[0] for i in qdata.values_list('datetime')]
-    adjclose = [float(i[0]) for i in qdata.values_list('adjclose')]
+
+    data = get_period_stock_data(ticker, kwargs.get('period'), kwargs.get('interval'))
 
     dateform = DateForm()
-    # print(dateform)
-
     context = {
         'title': info.ticker,
         'name': info.name,
         'description': info.description,
         'logo_url': info.logo_url,
-        'date': date,
-        'adjclose': adjclose,  # stockDataJS(request, ticker)
+        'date': data['date'],
+        'adjclose': data['adjclose'],
         'dateform': dateform
     }
+
     if text == "chart":
         return render(request, 'investinfo/stockdata.html', context=context)
     elif text:
@@ -92,13 +80,35 @@ def descriptionTicker(request, ticker, text=None, ystart='', mstart='', dstart='
     return render(request, 'investinfo/ticker.html', context=context)
 
 
-def stockDataJS(request, ticker, date=[0, 1, 2, 3]):
+def get_period_stock_data(ticker, period='1d', interval='1m'):
+    data = dict()
+    DICT_PERIOD = {
+        '1d': 1,
+        '5d': 5,
+        '1mo': 30,
+        '3mo': 90,
+        '6mo': 180,
+        '1y': 365,
+        '2y': 730,
+        '5y': 365*5,
+        '10y': 365*10,
+        'ytd': 10,
+        'max': 11
+    }
+    poin_date = datetime.now() - timedelta(days=DICT_PERIOD[period])
+    qdata = Data.objects.all().filter(ticker_id=ticker, datetime__gte=poin_date).order_by('datetime').distinct()
+    data['date'] = [i[0] for i in qdata.values_list('datetime')]
+    data['adjclose'] = [float(i[0]) for i in qdata.values_list('adjclose')]
+    return data
+
+def stock_data_js(request, ticker, date=[0, 1, 2, 3]):
+    # ToDo реализовать labels: [{% for d in date %}'{{d}}',{% endfor %}]
     return JsonResponse(data={
         'ticker': ticker
     })
 
 
-def lstToDate(lst):
+def lst_to_date(lst):
     """
     :param lst: list [гггг, мм, дд]
     :return: date гггг-мм-дд
@@ -112,7 +122,7 @@ def lstToDate(lst):
     return result
 
 
-def dateToLst(date):
+def date_to_lst(date):
     """
     :param date: str
     :return: list
