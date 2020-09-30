@@ -6,6 +6,35 @@ from .stockData import getstockdata, fetchdata
 from datetime import datetime, timedelta
 import re
 
+DICT_PERIOD = {
+        '1d': 1,
+        '5d': 5,
+        '1mo': 30,
+        '3mo': 90,
+        '6mo': 180,
+        '1y': 365,
+        '2y': 730,
+        '5y': 365 * 5,
+        '10y': 365 * 10,
+        'ytd': 10,
+        'max': 11
+    }
+DICT_INTERVAL = {
+        '1m': 1,
+        '2m': 2,
+        '5m': 5,
+        '15m': 15,
+        '30m': 30,
+        '60m': 60,
+        '90m': 90,
+        '1h': 60,
+        '1d': 24 * 60,
+        '5d': 1,
+        '1wk': 2,
+        '1mo': 3,
+        '3mo': 4
+    }
+
 
 def index(request):
     """
@@ -60,7 +89,11 @@ def descriptionticker(request, ticker, text=None, **kwargs):
     """
     info = Ticker.objects.get(ticker=ticker)
 
-    data = get_period_stock_data(ticker, kwargs.get('period'), kwargs.get('interval'))
+    if request.method == 'GET':
+        data = get_period_stock_data(ticker, kwargs.get('period'), kwargs.get('interval'))
+
+    if request.method == 'POST':
+        data = get_start_end_stock_data(ticker, request.POST['start'], request.POST['end'])
 
     dateform = DateForm()
     context = {
@@ -81,37 +114,28 @@ def descriptionticker(request, ticker, text=None, **kwargs):
 
 
 def get_period_stock_data(ticker, period='1d', interval='1m'):
-    data = dict()
-    DICT_PERIOD = {
-        '1d': 1,
-        '5d': 5,
-        '1mo': 30,
-        '3mo': 90,
-        '6mo': 180,
-        '1y': 365,
-        '2y': 730,
-        '5y': 365*5,
-        '10y': 365*10,
-        'ytd': 10,
-        'max': 11
-    }
-    DICT_INTERVAL = {
-        '1m': 1,
-        '2m': 2,
-        '5m': 5,
-        '15m': 15,
-        '30m': 30,
-        '60m': 60,
-        '90m': 90,
-        '1h': 60,
-        '1d': 24*60,
-        '5d': 1,
-        '1wk': 2,
-        '1mo': 3,
-        '3mo': 4
-    }
-    poin_date = datetime.now() - timedelta(days=DICT_PERIOD.get(period), hours=datetime.now().hour, minutes=datetime.now().minute, seconds=datetime.now().second, microseconds=datetime.now().microsecond)
-    qdata = Data.objects.all().filter(ticker_id=ticker, datetime__gte=poin_date).order_by('datetime').distinct()
+    data = {'date': None,
+            'adjclose': None}
+    global DICT_PERIOD
+    global DICT_INTERVAL
+
+    if period and interval:
+        poin_date = datetime.now() - timedelta(days=DICT_PERIOD.get(period), hours=datetime.now().hour, minutes=datetime.now().minute, seconds=datetime.now().second, microseconds=datetime.now().microsecond)
+        qdata = Data.objects.all().filter(ticker_id=ticker, datetime__gte=poin_date).order_by('datetime').distinct()
+        data['date'] = [i[0] for i in qdata.values_list('datetime')][::DICT_INTERVAL.get(interval)]
+        data['adjclose'] = [float(i[0]) for i in qdata.values_list('adjclose')][::DICT_INTERVAL.get(interval)]
+    return data
+
+
+def get_start_end_stock_data(ticker, start, end, interval='1m'):
+    data = {'date': None,
+            'adjclose': None}
+    global DICT_INTERVAL
+    y, m, d = date_to_lst(start, 'int')
+    start = datetime(y, m, d)
+    y, m, d = date_to_lst(end, 'int')
+    end = datetime(y, m, d)
+    qdata = Data.objects.all().filter(ticker_id=ticker, datetime__gte=start, datetime__lte=end).order_by('datetime').distinct()
     data['date'] = [i[0] for i in qdata.values_list('datetime')][::DICT_INTERVAL.get(interval)]
     data['adjclose'] = [float(i[0]) for i in qdata.values_list('adjclose')][::DICT_INTERVAL.get(interval)]
     return data
@@ -137,11 +161,14 @@ def lst_to_date(lst):
     return result
 
 
-def date_to_lst(date):
+def date_to_lst(date, key='str'):
     """
     :param date: str
     :return: list
     """
-    lst = str.split(date, sep='-')
+    if key == 'str':
+        lst = str.split(date, sep='-')
+    elif key == 'int':
+        lst = [int(d) for d in str.split(date, sep='-')]
 
     return lst
