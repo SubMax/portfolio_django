@@ -95,16 +95,31 @@ def get_period_stock_data(ticker, period='1d', interval='1m'):
         'ytd': 10,
         'max': 11
     }
-    poin_date = datetime.now() - timedelta(days=DICT_PERIOD[period])
+    DICT_INTERVAL = {
+        '1m': 1,
+        '2m': 2,
+        '5m': 5,
+        '15m': 15,
+        '30m': 30,
+        '60m': 60,
+        '90m': 90,
+        '1h': 60,
+        '1d': 24*60,
+        '5d': 1,
+        '1wk': 2,
+        '1mo': 3,
+        '3mo': 4
+    }
+    poin_date = datetime.now() - timedelta(days=DICT_PERIOD.get(period), hours=datetime.now().hour, minutes=datetime.now().minute, seconds=datetime.now().second, microseconds=datetime.now().microsecond)
     qdata = Data.objects.all().filter(ticker_id=ticker, datetime__gte=poin_date).order_by('datetime').distinct()
-    data['date'] = [i[0] for i in qdata.values_list('datetime')]
-    data['adjclose'] = [float(i[0]) for i in qdata.values_list('adjclose')]
+    data['date'] = [i[0] for i in qdata.values_list('datetime')][::DICT_INTERVAL.get(interval)]
+    data['adjclose'] = [float(i[0]) for i in qdata.values_list('adjclose')][::DICT_INTERVAL.get(interval)]
     return data
 
-def stock_data_js(request, ticker, date=[0, 1, 2, 3]):
+def stock_data_js(date=[0, 1, 2, 3]):
     # ToDo реализовать labels: [{% for d in date %}'{{d}}',{% endfor %}]
     return JsonResponse(data={
-        'ticker': ticker
+        'jsdate': date
     })
 
 
