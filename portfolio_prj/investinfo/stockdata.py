@@ -10,7 +10,7 @@ from yfinance import Ticker, download
 '''
 
 
-def getstockdata(tickername):
+def getstock_data(tickername):
     """
     :param tickername: краткое название биржевого инструмента
     :return: возвращает список из [тикера, название компании,
@@ -42,7 +42,7 @@ def fetchdata(**kwargs):
     interval = kwargs.get('interval')
 
     if not interval:
-        interval = '30m'
+        interval = '1m'
 
     if period:
         start, end = None, None
@@ -72,7 +72,7 @@ def fetchdata(**kwargs):
 
 
 if __name__ == "__main__":
-    # print(getstockdata('msft'))
+    # print(getstock_data('msft'))
     # print(fetchdata(tickerName='MSFT',
     #                 start='2020-09-19',
     #                 end='2020-09-22',

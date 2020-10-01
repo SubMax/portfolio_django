@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404
 from .models import Ticker, Data
 from .forms import TickerForm, DateForm, PeriodForm
-from .stockData import getstockdata, fetchdata
+from .stockdata import getstock_data, fetchdata
 from datetime import datetime, timedelta
 import re
 
@@ -50,7 +50,7 @@ def index(request):
                 return redirect('ticker_info', ticker=request_ticker)
         except Ticker.DoesNotExist:
             print("DoseNotExist")
-            data = getstockdata(request_ticker)
+            data = getstock_data(request_ticker)
             new_ticker = Ticker(name=data[1],
                                 ticker=data[0],
                                 description=data[2],

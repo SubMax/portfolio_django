@@ -39,9 +39,7 @@
             <form method="post">
                 {% csrf_token %}
                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                    {% for b in periodform %}
-                        {{ b }}
-                    {% endfor %}
+                    {{ periodform }}
                 </div>
             </form>
             <div class="btn-group mr-2" role="group" aria-label="First group">
