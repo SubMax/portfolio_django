@@ -26,73 +26,70 @@
 {% endblock %}
 
 {% block content %}
-<form method="post">
-    {% csrf_token %}
-    <div class="conteiner">
-        <div class="container-fluid">
-            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+
+<div class="conteiner">
+    <div class="container-fluid">
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <form method="post">
+                {% csrf_token %}
+                {{dateform}}
+                </form>
+            </div>
+            <form method="post">
+                {% csrf_token %}
                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                    {{dateform}}
+                    {% for b in periodform %}
+                        {{ b }}
+                    {% endfor %}
                 </div>
-                <div class="btn-group mr-2" role="group" aria-label="First group">
-                    <button type="button" class="btn btn-secondary">1d</button>
-                    <button type="button" class="btn btn-secondary">5d</button>
-                    <button type="button" class="btn btn-secondary">1m</button>
-                    <button type="button" class="btn btn-secondary">3m</button>
-                    <button type="button" class="btn btn-secondary">6m</button>
-                    <button type="button" class="btn btn-secondary">ytd</button>
-                    <button type="button" class="btn btn-secondary">1y</button>
-                    <button type="button" class="btn btn-secondary">2y</button>
-                    <button type="button" class="btn btn-secondary">5y</button>
-                    <button type="button" class="btn btn-secondary">max</button>
-                </div>
-                <div class="btn-group mr-2" role="group" aria-label="First group">
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Интервал
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" href="#">1 мин</a>
-                            <a class="dropdown-item" href="#">2 мин</a>
-                            <a class="dropdown-item" href="#">5 мин</a>
-                            <a class="dropdown-item" href="#">15 мин</a>
-                            <a class="dropdown-item" href="#">30 мин</a>
-                            <a class="dropdown-item" href="#">1 ч</a>
-                            <a class="dropdown-item" href="#">4 ч</a>
-                            <a class="dropdown-item" href="#">1 день</a>
-                            <a class="dropdown-item" href="#">1 неделя</a>
-                            <a class="dropdown-item" href="#">1 месяц</a>
-                            <a class="dropdown-item" href="#">1 год</a>
-                        </div>
+            </form>
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Интервал
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#">1 мин</a>
+                        <a class="dropdown-item" href="#">2 мин</a>
+                        <a class="dropdown-item" href="#">5 мин</a>
+                        <a class="dropdown-item" href="#">15 мин</a>
+                        <a class="dropdown-item" href="#">30 мин</a>
+                        <a class="dropdown-item" href="#">1 ч</a>
+                        <a class="dropdown-item" href="#">4 ч</a>
+                        <a class="dropdown-item" href="#">1 день</a>
+                        <a class="dropdown-item" href="#">1 неделя</a>
+                        <a class="dropdown-item" href="#">1 месяц</a>
+                        <a class="dropdown-item" href="#">1 год</a>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="container-fluid">
-            <canvas id="myChart"></canvas>
-            <div id="tickerName">{{ticker}}</div>
-            <script type="text/javascript">
-                var ctx = document.getElementById('myChart').getContext('2d');
-                var myLineChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: [{% for d in date %}'{{d}}',{% endfor %}],
-                        datasets: [{
-                            data: [{% for d in adjclose %}'{{d}}',{% endfor %}],
-                            label: "{{ title }}",
-                            borderColor: "#3e95cd",
-                            fill: false
-                            }]
-                      },
-                      options: {
-                        title: {
-                          display: true,
-                          text: 'Скорректированная цена закрытия акции'
-                        }
-                      }
-                    });
-            </script>
-        </div>
     </div>
-</form>
+    <div class="container-fluid">
+        <canvas id="myChart"></canvas>
+        <div id="tickerName">{{ticker}}</div>
+        <script type="text/javascript">
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var myLineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [{% for d in date %}'{{d}}',{% endfor %}],
+                    datasets: [{
+                        data: [{% for d in adjclose %}'{{d}}',{% endfor %}],
+                        label: "{{ title }}",
+                        borderColor: "#3e95cd",
+                        fill: false
+                        }]
+                  },
+                  options: {
+                    title: {
+                      display: true,
+                      text: 'Скорректированная цена закрытия акции'
+                    }
+                  }
+                });
+        </script>
+    </div>
+</div>
 {% endblock %}

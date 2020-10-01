@@ -30,6 +30,24 @@ class DateForm(Form):
     }), label='')
 
 
-class MySetForm(Form):
-    my_set = formset_factory(DateForm)
-    set = my_set()
+class PeriodForm(Form):
+    one_day = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "1d"}),
+                        label='')
+    five_day = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "5d"}),
+                         label='')
+    one_month = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "1m"}),
+                          label='')
+    three_month = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "3m"}),
+                            label='')
+    six_month = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "6m"}),
+                          label='')
+    ytd = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "ytd"}),
+                    label='')
+    one_year = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "1y"}),
+                         label='')
+    two_year = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "2y"}),
+                         label='')
+    five_year = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "5y"}),
+                          label='')
+    max = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "max"}),
+                    label='')
