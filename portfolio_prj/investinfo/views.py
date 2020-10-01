@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404
 from .models import Ticker, Data
-from .forms import TickerForm, DateForm, MySetForm
+from .forms import TickerForm, DateForm, PeriodForm
 from .stockData import getstockdata, fetchdata
 from datetime import datetime, timedelta
 import re
@@ -60,8 +60,6 @@ def index(request):
 
     list_ticker = Ticker.objects.all().order_by('ticker')
     tickerform = TickerForm()
-    trushlabel = tickerform.fields.get('ticker')  # удаляем ненужную подпись
-    trushlabel.label = ''
 
     context = {
         'title': "Список тикеров",
@@ -91,11 +89,18 @@ def descriptionticker(request, ticker, text=None, **kwargs):
 
     if request.method == 'GET':
         data = get_period_stock_data(ticker, kwargs.get('period'), kwargs.get('interval'))
+        if not data['date'] and not data['adjclose'] and text:
+            fetchdata(tickername=ticker, period=kwargs.get('period'), interval=kwargs.get('interval'))
+            data = get_period_stock_data(ticker, kwargs.get('period'), kwargs.get('interval'))
 
     if request.method == 'POST':
-        data = get_start_end_stock_data(ticker, request.POST['start'], request.POST['end'])
+        if kwargs.get('period') and kwargs.get('interval') and not request.POST.get('start') or request.POST.get('end'):
+            data = get_period_stock_data(ticker, kwargs.get('period'), kwargs.get('interval'))
+        elif request.POST['start'] and request.POST['end']:
+            data = get_start_end_stock_data(ticker, request.POST['start'], request.POST['end'])
 
     dateform = DateForm()
+    periodform = PeriodForm()
     context = {
         'title': info.ticker,
         'name': info.name,
@@ -103,7 +108,8 @@ def descriptionticker(request, ticker, text=None, **kwargs):
         'logo_url': info.logo_url,
         'date': data['date'],
         'adjclose': data['adjclose'],
-        'dateform': dateform
+        'dateform': dateform,
+        'periodform': periodform
     }
 
     if text == "chart":

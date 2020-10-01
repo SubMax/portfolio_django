@@ -7,7 +7,7 @@ class TickerForm(ModelForm):
     class Meta:
         model = Ticker
         fields = ['ticker']
-        label = '1'
+        labels = {'ticker': ''}
         widgets = {
             'ticker': TextInput(attrs={
                 'class': "form-control",
@@ -31,9 +31,16 @@ class DateForm(Form):
 
 
 class PeriodForm(Form):
-    one_day = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "1d"}),
+    one_day = DateField(widget=TextInput(attrs={'type': "submit",
+                                                'class': "btn btn-secondary",
+                                                'href': "/investinfo/{{ title }}/chart/1d/1m",
+                                                'value': "1d"
+                                                }),
                         label='')
-    five_day = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "5d"}),
+    five_day = DateField(widget=TextInput(attrs={'type': "submit",
+                                                 'class': "btn btn-secondary",
+                                                 'href': "/investinfo/{{ title }}/chart/1d/1m",
+                                                 'value': "5d"}),
                          label='')
     one_month = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "1m"}),
                           label='')
@@ -51,3 +58,4 @@ class PeriodForm(Form):
                           label='')
     max = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "max"}),
                     label='')
+    buttons = [one_day, five_day]
