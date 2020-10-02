@@ -69,6 +69,10 @@ def index(request):
     return render(request, 'investinfo/list_ticker.html', context=context)
 
 
+def about(request):
+    return render(request, 'investinfo/about.html')
+
+
 def descriptionticker(request, ticker, text=None, **kwargs):
     """
     Метод для отоброжения информации о инструменте
