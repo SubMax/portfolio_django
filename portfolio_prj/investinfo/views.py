@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404
 from .models import Ticker, Data
-from .forms import TickerForm, DateForm, PeriodForm
+from .forms import TickerForm, DateForm, PeriodForm, IntervalForm
 from .stockdata import getstock_data, fetchdata
 from datetime import datetime, timedelta
 import re
@@ -86,31 +86,59 @@ def description_ticker(request, ticker):
 
 
 def stock_data_ticker(request, ticker, text, period=None, interval=None, *args, **kwargs):
+    #ToDo дважды вызывается GET
     if request.method == 'GET':
-        data = get_period_stock_data(ticker, period, interval)
-        if not data['date'] and not data['adjclose'] and text:
-            fetchdata(tickername=ticker, period=period, interval=interval)
+        info = Ticker.objects.get(ticker=ticker)
+        if period and interval and kwargs.__len__() < 3:
             data = get_period_stock_data(ticker, period, interval)
-    #
-    # if request.method == 'POST':
-    #     if kwargs.get('period') and kwargs.get('interval') and not request.POST.get('start') or request.POST.get('end'):
-    #         data = get_period_stock_data(ticker, kwargs.get('period'), kwargs.get('interval'))
-    #     elif request.POST['start'] and request.POST['end']:
-    #         data = get_start_end_stock_data(ticker, request.POST['start'], request.POST['end'])
+            if not data['date'] and not data['adjclose'] and text:
+                fetchdata(tickername=ticker, period=period, interval=interval)
+                data = get_period_stock_data(ticker, period, interval)
+        elif kwargs.__len__() == 6:
+            start = lst_to_date([kwargs.get('ystart'), kwargs.get('mstart'), kwargs.get('dstart')])
+            end = lst_to_date([kwargs.get('yend'), kwargs.get('mend'), kwargs.get('dend')])
+            data = get_start_end_stock_data(ticker, start, end, interval)
+            if not data['date'] and not data['adjclose'] and text:
+                fetchdata(tickername=ticker, start=start, end=end, interval=interval)
+                data = get_start_end_stock_data(ticker, start, end, interval)
+
+    if request.method == 'POST':
+        if request.POST.get('period') and request.POST.get('interval'):
+            return redirect('chart_period',
+                            ticker=ticker,
+                            text=text,
+                            period=request.POST.get('period'),
+                            interval=request.POST.get('interval'))
+
+        elif request.POST.get('start') and request.POST.get('end'):
+            ystart, mstart, dstart = date_to_lst(request.POST.get('start'))
+            yend, mend, dend = date_to_lst(request.POST.get('end'))
+            return redirect('chart_date',
+                            ticker=ticker,
+                            text=text,
+                            ystart=ystart,
+                            mstart=mstart,
+                            dstart=dstart,
+                            yend=yend,
+                            mend=mend,
+                            dend=dend,
+                            interval=interval)
 
     date_form = DateForm()
     period_form = PeriodForm()
+    interval_form = IntervalForm()
     context = {
         'title': ticker,
         'period': period,
-        # 'logo_url': info.logo_url,
+        'interval': interval,
+        'logo_url': info.logo_url,
         'date': data['date'],
         'adjclose': data['adjclose'],
         'dateform': date_form,
-        'periodform': period_form
+        'periodform': period_form,
+        'intervalform': interval_form
     }
     return render(request, 'investinfo/stockdata.html', context=context)
-
 
 def get_period_stock_data(ticker, period='1d', interval='1m'):
     data = {'date': None,
