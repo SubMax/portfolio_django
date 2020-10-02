@@ -14,7 +14,7 @@
         <a class="nav-link" href="/investinfo/{{ title }}">Описание</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link active" href="/investinfo/{{ title }}/chart/{{ period }}/1m/">Детали</a>
+        <a class="nav-link active" href="/investinfo/{{ title }}/chart/{{ period }}/{{ interval }}/">Детали</a>
       </li>
     </ul>
 {% endblock %}
@@ -24,38 +24,21 @@
 <div class="conteiner">
     <div class="container-fluid">
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-            <div class="btn-group mr-2" role="group" aria-label="First group">
-                <form method="post">
-                {% csrf_token %}
-                {{dateform}}
-                </form>
-            </div>
             <form method="post">
-                {% csrf_token %}
-                <div class="btn-group mr-2" role="group" aria-label="First group">
-                    {{ periodform }}
+            {% csrf_token %}
+                <div class="btn-group mr-2" role="group">
+            {{dateform}}
                 </div>
             </form>
-            <div class="btn-group mr-2" role="group" aria-label="First group">
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Интервал
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="#">1 мин</a>
-                        <a class="dropdown-item" href="#">2 мин</a>
-                        <a class="dropdown-item" href="#">5 мин</a>
-                        <a class="dropdown-item" href="#">15 мин</a>
-                        <a class="dropdown-item" href="#">30 мин</a>
-                        <a class="dropdown-item" href="#">1 ч</a>
-                        <a class="dropdown-item" href="#">4 ч</a>
-                        <a class="dropdown-item" href="#">1 день</a>
-                        <a class="dropdown-item" href="#">1 неделя</a>
-                        <a class="dropdown-item" href="#">1 месяц</a>
-                        <a class="dropdown-item" href="#">1 год</a>
-                    </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="btn-group mr-2" role="group">
+                    {{ periodform }}
                 </div>
-            </div>
+                <div class="btn-group mr-2" role="group">
+                {{ intervalform }}
+                </div>
+            </form>
         </div>
     </div>
     <div class="container-fluid">

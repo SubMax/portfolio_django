@@ -1,5 +1,5 @@
 from .models import Ticker
-from django.forms import ModelForm, Form, TextInput, DateField, formset_factory
+from django.forms import ModelForm, Form, TextInput, DateField, ChoiceField
 from datetime import date, timedelta
 
 
@@ -31,31 +31,22 @@ class DateForm(Form):
 
 
 class PeriodForm(Form):
-    one_day = DateField(widget=TextInput(attrs={'type': "submit",
-                                                'class': "btn btn-secondary",
-                                                'href': "/investinfo/{{ title }}/chart/1d/1m",
-                                                'value': "1d"
-                                                }),
-                        label='')
-    five_day = DateField(widget=TextInput(attrs={'type': "submit",
-                                                 'class': "btn btn-secondary",
-                                                 'href': "/investinfo/{{ title }}/chart/1d/1m",
-                                                 'value': "5d"}),
-                         label='')
-    one_month = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "1m"}),
-                          label='')
-    three_month = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "3m"}),
-                            label='')
-    six_month = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "6m"}),
-                          label='')
-    ytd = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "ytd"}),
-                    label='')
-    one_year = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "1y"}),
-                         label='')
-    two_year = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "2y"}),
-                         label='')
-    five_year = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "5y"}),
-                          label='')
-    max = DateField(widget=TextInput(attrs={'type': "submit", 'class': "btn btn-secondary", 'value': "max"}),
-                    label='')
-    buttons = [one_day, five_day]
+    tuple_period = ((p, p) for p in "1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max".split(','))
+    period = ChoiceField(choices=tuple_period, label='')
+    ok = DateField(widget=TextInput(attrs={
+        'type': "submit",
+        'class': "btn btn-secondary",
+        'onClick': "dataSelect(this.form)",
+        'value': "Ok"
+    }), label='')
+
+
+class IntervalForm(Form):
+    tuple_interval = ((p, p) for p in "1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo".split(','))
+    interval = ChoiceField(choices=tuple_interval, label='')
+    ok = DateField(widget=TextInput(attrs={
+        'type': "submit",
+        'class': "btn btn-secondary",
+        'onClick': "dataSelect(this.form)",
+        'value': "Ok"
+    }), label='')
