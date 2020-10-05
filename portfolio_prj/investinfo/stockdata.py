@@ -1,5 +1,6 @@
 import pandas
 import sqlite3
+import os
 
 from yfinance import Ticker, download
 
@@ -65,8 +66,10 @@ def fetchdata(**kwargs):
         if axe.name:
             axe.name = "Datetime"
 
-    connect = sqlite3.connect(r'C:\Users\subm\PycharmProjects'
-                              r'\portfolio2\portfolio_prj\db.sqlite3')
+    path = os.getcwd()
+    path = path + "\db.sqlite3"
+
+    connect = sqlite3.connect(path)
     name = "investinfo_data"
     pandas.DataFrame.to_sql(dataframe, name, connect, if_exists='append')
 
