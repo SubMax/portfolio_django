@@ -1,10 +1,8 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
 from .models import Ticker, Data
 from .forms import TickerForm, DateForm, PeriodForm, IntervalForm
 from .stockdata import getstock_data, fetchdata
 from datetime import datetime, timedelta, timezone
-from heapq import merge
 import re
 
 DICT_PERIOD = {
@@ -86,8 +84,16 @@ def description_ticker(request, ticker):
     return render(request, 'investinfo/ticker.html', context=context)
 
 
-def stock_data_ticker(request, ticker, text, period=None, interval=None, *args, **kwargs):
+def stock_data_ticker(
+        request,
+        ticker,
+        text,
+        period=None,
+        interval=None,
+        *args,
+        **kwargs):
     # ToDo дважды вызывается GET
+    global info, data
     if request.method == 'GET':
         info = Ticker.objects.get(ticker=ticker)
         if period and interval and kwargs.__len__() < 3:
@@ -115,7 +121,8 @@ def stock_data_ticker(request, ticker, text, period=None, interval=None, *args, 
                             interval=request.POST.get('interval'))
 
         elif request.POST.get('start') and request.POST.get('end'):
-            ystart, mstart, dstart = date_to_lst(request.POST.get('start'), key='int')
+            ystart, mstart, dstart = date_to_lst(
+                request.POST.get('start'), key='int')
             yend, mend, dend = date_to_lst(request.POST.get('end'), key='int')
             return redirect('chart_date',
                             ticker=ticker,
@@ -146,19 +153,24 @@ def stock_data_ticker(request, ticker, text, period=None, interval=None, *args, 
 
 
 def get_period_stock_data(ticker, period='1d', interval='1m'):
-    #ToDo: добавить проверку на существование записей за данный период
+    # ToDo: добавить проверку на существование записей за данный период
     data = {'date': None,
             'adjclose': None}
     global DICT_PERIOD
     global DICT_INTERVAL
 
     if period and interval:
-        poin_date = datetime.now() - timedelta(days=DICT_PERIOD.get(period), hours=datetime.now().hour,
-                                               minutes=datetime.now().minute, seconds=datetime.now().second,
+        poin_date = datetime.now() - timedelta(days=DICT_PERIOD.get(period),
+                                               hours=datetime.now().hour,
+                                               minutes=datetime.now().minute,
+                                               seconds=datetime.now().second,
                                                microseconds=datetime.now().microsecond)
-        qdata = Data.objects.all().filter(ticker_id=ticker, datetime__gte=poin_date).order_by('datetime').distinct()
-        data['date'] = [i[0] for i in qdata.values_list('datetime')][::DICT_INTERVAL.get(interval)]
-        data['adjclose'] = [float(i[0]) for i in qdata.values_list('adjclose')][::DICT_INTERVAL.get(interval)]
+        qdata = Data.objects.all().filter(ticker_id=ticker,
+                                          datetime__gte=poin_date).order_by('datetime').distinct()
+        data['date'] = [i[0] for i in qdata.values_list(
+            'datetime')][::DICT_INTERVAL.get(interval)]
+        data['adjclose'] = [float(i[0]) for i in qdata.values_list(
+            'adjclose')][::DICT_INTERVAL.get(interval)]
     return data
 
 
@@ -168,10 +180,12 @@ def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
                 'adjclose': None}
     global DICT_INTERVAL
 
-    query_data = Data.objects.all().filter(ticker_id=ticker, datetime__gte=start, datetime__lte=end).order_by(
-        'datetime').distinct()
-    data['date'] = [i[0] for i in query_data.values_list('datetime')][::DICT_INTERVAL.get(interval)]
-    data['adjclose'] = [float(i[0]) for i in query_data.values_list('adjclose')][::DICT_INTERVAL.get(interval)]  #Danger
+    query_data = Data.objects.all().filter(ticker_id=ticker, datetime__gte=start,
+                                           datetime__lte=end).order_by('datetime').distinct()
+    data['date'] = [i[0] for i in query_data.values_list(
+        'datetime')][::DICT_INTERVAL.get(interval)]
+    data['adjclose'] = [float(i[0]) for i in query_data.values_list(
+        'adjclose')][::DICT_INTERVAL.get(interval)]  # Danger
     if not data['date'] and not data['adjclose']:
         fetchdata(tickername=ticker, start=start, end=end, interval=interval)
         data = get_start_end_stock_data(ticker, start, end, interval)
@@ -180,25 +194,22 @@ def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
 
     if first > start:
         fetchdata(tickername=ticker, start=start, end=first, interval=interval)
-        pre_query_data = Data.objects.all().filter(ticker_id=ticker, datetime__gte=start, datetime__lte=first).order_by(
-            'datetime').distinct()
+        pre_query_data = Data.objects.all().filter(ticker_id=ticker,
+                                                   datetime__gte=start,
+                                                   datetime__lte=first).order_by('datetime').distinct()
     if last < end:
         fetchdata(tickername=ticker, start=last, end=end, interval=interval)
-        post_query_data = Data.objects.all().filter(ticker_id=ticker, datetime__gte=last, datetime__lte=end).order_by(
-            'datetime').distinct()
+        post_query_data = Data.objects.all().filter(ticker_id=ticker,
+                                                    datetime__gte=last,
+                                                    datetime__lte=end).order_by('datetime').distinct()
 
     all_query_data = pre_query_data | query_data | post_query_data
-    data['date'] = [i[0] for i in all_query_data.values_list('datetime')][::DICT_INTERVAL.get(interval)]
-    data['adjclose'] = [float(i[0]) for i in all_query_data.values_list('adjclose')][::DICT_INTERVAL.get(interval)]
+    data['date'] = [i[0] for i in all_query_data.values_list(
+        'datetime')][::DICT_INTERVAL.get(interval)]
+    data['adjclose'] = [float(i[0]) for i in all_query_data.values_list(
+        'adjclose')][::DICT_INTERVAL.get(interval)]
 
     return data
-
-
-def stock_data_js(date=[0, 1, 2, 3]):
-    # ToDo реализовать labels: [{% for d in date %}'{{d}}',{% endfor %}]
-    return JsonResponse(data={
-        'jsdate': date
-    })
 
 
 def lst_to_date(lst):
@@ -220,6 +231,7 @@ def date_to_lst(date, key='str'):
     :param date: str
     :return: list
     """
+    lst = None
     if key == 'str':
         lst = str.split(date, sep='-')
     elif key == 'int':
