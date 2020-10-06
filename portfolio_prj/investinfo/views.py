@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse
 from .models import Ticker, Data
 from .forms import TickerForm, DateForm, PeriodForm, IntervalForm
 from .stockdata import getstock_data, fetchdata
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from heapq import merge
 import re
 
 DICT_PERIOD = {
@@ -86,7 +87,7 @@ def description_ticker(request, ticker):
 
 
 def stock_data_ticker(request, ticker, text, period=None, interval=None, *args, **kwargs):
-    #ToDo дважды вызывается GET
+    # ToDo дважды вызывается GET
     if request.method == 'GET':
         info = Ticker.objects.get(ticker=ticker)
         if period and interval and kwargs.__len__() < 3:
@@ -95,12 +96,15 @@ def stock_data_ticker(request, ticker, text, period=None, interval=None, *args, 
                 fetchdata(tickername=ticker, period=period, interval=interval)
                 data = get_period_stock_data(ticker, period, interval)
         elif kwargs.__len__() == 6:
-            start = lst_to_date([kwargs.get('ystart'), kwargs.get('mstart'), kwargs.get('dstart')])
-            end = lst_to_date([kwargs.get('yend'), kwargs.get('mend'), kwargs.get('dend')])
+            start = datetime(year=kwargs.get('ystart'),
+                             month=kwargs.get('mstart'),
+                             day=kwargs.get('dstart'),
+                             tzinfo=timezone(-timedelta(hours=4)))
+            end = datetime(year=kwargs.get('yend'),
+                           month=kwargs.get('mend'),
+                           day=kwargs.get('dend') + 1,
+                           tzinfo=timezone(-timedelta(hours=4)))
             data = get_start_end_stock_data(ticker, start, end, interval)
-            if not data['date'] and not data['adjclose'] and text:
-                fetchdata(tickername=ticker, start=start, end=end, interval=interval)
-                data = get_start_end_stock_data(ticker, start, end, interval)
 
     if request.method == 'POST':
         if request.POST.get('period') and request.POST.get('interval'):
@@ -111,8 +115,8 @@ def stock_data_ticker(request, ticker, text, period=None, interval=None, *args, 
                             interval=request.POST.get('interval'))
 
         elif request.POST.get('start') and request.POST.get('end'):
-            ystart, mstart, dstart = date_to_lst(request.POST.get('start'))
-            yend, mend, dend = date_to_lst(request.POST.get('end'))
+            ystart, mstart, dstart = date_to_lst(request.POST.get('start'), key='int')
+            yend, mend, dend = date_to_lst(request.POST.get('end'), key='int')
             return redirect('chart_date',
                             ticker=ticker,
                             text=text,
@@ -140,7 +144,9 @@ def stock_data_ticker(request, ticker, text, period=None, interval=None, *args, 
     }
     return render(request, 'investinfo/stockdata.html', context=context)
 
+
 def get_period_stock_data(ticker, period='1d', interval='1m'):
+    #ToDo: добавить проверку на существование записей за данный период
     data = {'date': None,
             'adjclose': None}
     global DICT_PERIOD
@@ -156,18 +162,35 @@ def get_period_stock_data(ticker, period='1d', interval='1m'):
     return data
 
 
-def get_start_end_stock_data(ticker, start, end, interval='1m'):
-    data = {'date': None,
-            'adjclose': None}
+def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
+    if not data:
+        data = {'date': None,
+                'adjclose': None}
     global DICT_INTERVAL
-    y, m, d = date_to_lst(start, 'int')
-    start = datetime(y, m, d)
-    y, m, d = date_to_lst(end, 'int')
-    end = datetime(y, m, d)
-    qdata = Data.objects.all().filter(ticker_id=ticker, datetime__gte=start, datetime__lte=end).order_by(
+
+    query_data = Data.objects.all().filter(ticker_id=ticker, datetime__gte=start, datetime__lte=end).order_by(
         'datetime').distinct()
-    data['date'] = [i[0] for i in qdata.values_list('datetime')][::DICT_INTERVAL.get(interval)]
-    data['adjclose'] = [float(i[0]) for i in qdata.values_list('adjclose')][::DICT_INTERVAL.get(interval)]
+    data['date'] = [i[0] for i in query_data.values_list('datetime')][::DICT_INTERVAL.get(interval)]
+    data['adjclose'] = [float(i[0]) for i in query_data.values_list('adjclose')][::DICT_INTERVAL.get(interval)]  #Danger
+    if not data['date'] and not data['adjclose']:
+        fetchdata(tickername=ticker, start=start, end=end, interval=interval)
+        data = get_start_end_stock_data(ticker, start, end, interval)
+    first = data['date'][0]
+    last = data['date'][-1]
+
+    if first > start:
+        fetchdata(tickername=ticker, start=start, end=first, interval=interval)
+        pre_query_data = Data.objects.all().filter(ticker_id=ticker, datetime__gte=start, datetime__lte=first).order_by(
+            'datetime').distinct()
+    if last < end:
+        fetchdata(tickername=ticker, start=last, end=end, interval=interval)
+        post_query_data = Data.objects.all().filter(ticker_id=ticker, datetime__gte=last, datetime__lte=end).order_by(
+            'datetime').distinct()
+
+    all_query_data = pre_query_data | query_data | post_query_data
+    data['date'] = [i[0] for i in all_query_data.values_list('datetime')][::DICT_INTERVAL.get(interval)]
+    data['adjclose'] = [float(i[0]) for i in all_query_data.values_list('adjclose')][::DICT_INTERVAL.get(interval)]
+
     return data
 
 
