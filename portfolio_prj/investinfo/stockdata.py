@@ -2,7 +2,10 @@ import pandas
 import sqlite3
 import os
 
-from yfinance import Ticker, download
+from yfinance import Ticker, download, shared
+
+from .stockdataexception import StockDataIntervalValueError
+import time
 
 '''
 Модуль для работы с yfinance, для получения
@@ -41,6 +44,7 @@ def fetchdata(**kwargs):
     end = kwargs.get('end')
     period = kwargs.get('period')
     interval = kwargs.get('interval')
+    download_errors = shared._ERRORS
 
     if not interval:
         interval = '1m'
@@ -51,11 +55,21 @@ def fetchdata(**kwargs):
     if not period and not start and not end:
         period, interval = '1d', '1m'
 
-    dataframe = download(tickers=tickername,
-                         start=start,
-                         end=end,
-                         period=period,
-                         interval=interval)
+    try:
+        dataframe = download(tickers=tickername,
+                             start=start,
+                             end=end,
+                             period=period,
+                             interval=interval)
+        if download_errors:
+            raise StockDataIntervalValueError(tickername, download_errors.get(tickername))
+    except StockDataIntervalValueError:
+        dataframe = download(tickers=tickername,
+                             start=start,
+                             end=end,
+                             period=period,
+                             interval='60m')
+
     dataframe.columns = dataframe.columns.str.replace(' ', '')
     # удаление пробелов в названиях столбцов
     dataframe.insert(loc=len(dataframe.columns),
@@ -80,4 +94,5 @@ if __name__ == "__main__":
     #                 start='2020-09-19',
     #                 end='2020-09-22',
     #                 interval='15m'))
-    fetchdata(tickername='A', period='5d', interval='1m')
+    # fetchdata(tickername='A', period='5d', interval='1m')
+    print(time.strftime('%Y-%m-%d %X', time.localtime('1596222000')))
