@@ -81,7 +81,7 @@ def fetchdata(**kwargs):
             axe.name = "Datetime"
 
     path = os.getcwd()
-    path = path + "\db.sqlite3"
+    path = path + "/db.sqlite3"
 
     connect = sqlite3.connect(path)
     name = "investinfo_data"
