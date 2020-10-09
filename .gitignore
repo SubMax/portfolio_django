@@ -1,7 +1,6 @@
 .idea/
 venv/
 db.sqlite3
-static/
 *.pyc
 migrations/
 *sqlite3
