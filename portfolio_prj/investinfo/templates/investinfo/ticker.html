@@ -1,12 +1,33 @@
 {% extends 'base.html' %}
 
 {% block favicon %}
-    {{logo_url}}
+  {{logo_url}}
 {% endblock %}
 
 {% block title %}
-    {{ title }}
+  {{ title }}
 {% endblock %}
+
+{% block title_open_graph %}
+  {{ title }}
+{% endblock %}
+
+{% block url_open_graph %}
+  {{ title }}
+{% endblock %}
+
+{% block name_open_graph %}
+  {{name}}
+{% endblock %}
+
+{% block description_open_graph %}
+  {{ description }}
+{% endblock %}
+
+{% block favicon_open_graph %}
+  {{logo_url}}
+{% endblock %}
+
 {% block navi %}
     <ul class="nav nav-tabs">
       <li class="nav-item">
