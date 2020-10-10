@@ -5,32 +5,35 @@
 {% endblock %}
 
 {% block content %}
-    <body>
-        <form method="post" class="input-group mb-3">
-            {% csrf_token %}
-            {{ tickerform }}
-            <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="submit">Найти</button>
-            </div>
-        </form>
-        <table class="table">
-          <thead class="thead-dark">
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Name</th>
-              <th scope="col">Ticketr</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for ticker in list_ticker %}
-            <tr>
-              <th scope="row"><img height="25%" src="{{ ticker.logo_url }}" alt="logo"></th>
-                <td><a class="p-2 text-dark" href="/investinfo/{{ ticker.pk }}">{{ ticker.name }}</a></td>
-                <td><a class="p-2 text-dark" href="/investinfo/{{ ticker.pk }}">{{ ticker.ticker }}</a></td>
-            </tr>
-            {% endfor %}
-          </tbody>
+<form method="post" class="input-group mb-3">
+    {% csrf_token %}
+    {{ tickerform }}
+    <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="submit">Найти</button>
+    </div>
+</form>
+<div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--1-col-desktop"></div>
+    <div class="mdl-cell mdl-cell--10-col-desktop">
+        <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="table-layout:fixed; width:100%; font-size: 17px;">
+            <thead>
+                <tr>
+                    <th style="width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -o-text-overflow: ellipsis; text-align: center !important;">Logo</th>
+                    <th style="width: 65%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -o-text-overflow: ellipsis; text-align: center !important;">Name</th>
+                    <th style="width: 20%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -o-text-overflow: ellipsis; text-align: center !important;">Ticketr</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticker in list_ticker %}
+                    <tr>
+                        <td style="text-align: center !important;"><img height="100%" src="{{ ticker.logo_url }}" alt="logo"></td>
+                        <td style="text-align: center !important;"><a href="/investinfo/{{ ticker.pk }}">{{ ticker.name }}</a></td>
+                        <td style="text-align: center !important;"><a href="/investinfo/{{ ticker.pk }}">{{ ticker.ticker }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
-    </body>
-</html>
+    </div>
+    <div class="mdl-cell mdl-cell--1-col-desktop"></div>
+</div>
 {% endblock %}
