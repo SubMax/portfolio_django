@@ -37,8 +37,8 @@ DICT_INTERVAL = {
 
 def index(request):
     """
-    метод для генерации основной страници приложения
-    :param request: запрос
+    Основная страница приложения.
+    :param request:
     :return:
     """
 
@@ -59,42 +59,62 @@ def index(request):
             return description_ticker(request, request_ticker)
 
     list_ticker = Ticker.objects.all().order_by('ticker')
-    tickerform = TickerForm()
+    ticker_form = TickerForm()
 
     context = {
         'title': "Список тикеров",
         'list_ticker': list_ticker,
-        'tickerform': tickerform
+        'tickerform': ticker_form
     }
     return render(request, 'investinfo/list_ticker.html', context=context)
 
 
 def about(request):
+    """
+    Страница About.
+    :param request:
+    :return:
+    """
     return render(request, 'investinfo/about.html')
 
 
 def description_ticker(request, ticker):
-    info = Ticker.objects.get(ticker=ticker)
+    """
+    Страница с описанием.
+    :param request:
+    :param ticker: наименование тикера
+    :return:
+    """
+    information = Ticker.objects.get(ticker=ticker)
 
     context = {
-        'title': info.ticker,
-        'name': info.name,
-        'description': info.description,
-        'logo_url': info.logo_url,
+        'title': information.ticker,
+        'name': information.name,
+        'description': information.description,
+        'logo_url': information.logo_url,
     }
     return render(request, 'investinfo/ticker.html', context=context)
 
 
-def stock_data_ticker(
-        request,
-        ticker,
-        text,
-        period=None,
-        interval=None,
-        *args,
-        **kwargs):
-    # ToDo дважды вызывается GET
-    global info, data
+def stock_data_ticker(request,
+                      ticker,
+                      text,
+                      period=None,
+                      interval=None,
+                      **kwargs):
+    """
+    Информация о ценах.
+    :param request:
+    :param ticker: наименование тикера
+    :param text:
+    :param period: запрашиваемы период
+    :param interval: запрашиваемый интервал
+    :param kwargs:
+    :return:
+    """
+
+    info, data = None, None
+
     if request.method == 'GET':
         info = Ticker.objects.get(ticker=ticker)
         if period and interval and kwargs.__len__() < 3:
@@ -154,20 +174,26 @@ def stock_data_ticker(
 
 
 def get_period_stock_data(ticker, period='1d', interval='1m'):
-    # ToDo: добавить проверку на существование записей за данный период
+    """
+    Получение данных за период.
+    :param ticker: наименование тикера
+    :param period: запрашиваемы период
+    :param interval: запрашиваемый интервал
+    :return:
+    """
     data = {'date': None,
             'adjclose': None}
     global DICT_PERIOD
     global DICT_INTERVAL
 
     if period and interval:
-        poin_date = datetime.now() - timedelta(days=DICT_PERIOD.get(period),
-                                               hours=datetime.now().hour,
-                                               minutes=datetime.now().minute,
-                                               seconds=datetime.now().second,
-                                               microseconds=datetime.now().microsecond)
+        point_date = datetime.now() - timedelta(days=DICT_PERIOD.get(period),
+                                                hours=datetime.now().hour,
+                                                minutes=datetime.now().minute,
+                                                seconds=datetime.now().second,
+                                                microseconds=datetime.now().microsecond)
         qdata = Data.objects.all().filter(ticker_id=ticker,
-                                          datetime__gte=poin_date).order_by('datetime').distinct()
+                                          datetime__gte=point_date).order_by('datetime').distinct()
         data['date'] = [i[0] for i in qdata.values_list(
             'datetime')][::DICT_INTERVAL.get(interval)]
         data['adjclose'] = [float(i[0]) for i in qdata.values_list(
@@ -176,6 +202,15 @@ def get_period_stock_data(ticker, period='1d', interval='1m'):
 
 
 def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
+    """
+    Получение данных в промежуток
+    :param ticker: наименование тикера
+    :param start: начало промежутка
+    :param end: конец промежутка
+    :param interval: запрашиваемый интервал
+    :param data:
+    :return:
+    """
     if not data:
         data = {'date': None,
                 'adjclose': None}
@@ -229,6 +264,7 @@ def lst_to_date(lst):
 
 def date_to_lst(date, key='str'):
     """
+    :param key:
     :param date: str
     :return: list
     """
