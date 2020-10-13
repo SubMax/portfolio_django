@@ -24,7 +24,7 @@ def getstock_data(tickername):
     info = []
     try:
         ticker = Ticker(tickername).info
-    except KeyError:
+    except:
         info = None
         return info
     info.append(ticker.get('symbol'))
