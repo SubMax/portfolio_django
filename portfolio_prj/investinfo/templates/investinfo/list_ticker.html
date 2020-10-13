@@ -5,17 +5,20 @@
 {% endblock %}
 
 {% block content %}
-<form method="post" class="input-group mb-3">
-    {% csrf_token %}
-    {{ tickerform }}
-    <div class="input-group-append">
-        <button class="btn btn-outline-secondary" type="submit">Найти</button>
+<form method="post" class="mdl-grid">
+    <div class="mdl-cell mdl-cell--1-col mdl-cell--hide-phone"></div>
+    <div class="mdl-cell mdl-cell--10-col">
+        {% csrf_token %}
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            {{ tickerform }}
+        </div>
     </div>
+    <div class="mdl-cell mdl-cell--1-col mdl-cell--hide-phone"></div>
 </form>
 <div class="mdl-grid">
-    <div class="mdl-cell mdl-cell--1-col-desktop"></div>
-    <div class="mdl-cell mdl-cell--10-col-desktop">
-        <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="table-layout:fixed; width:100%; font-size: 17px;">
+    <div class="mdl-cell mdl-cell--1-col mdl-cell--hide-phone"></div>
+    <div class="mdl-cell mdl-cell--10-col">
+            <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="table-layout:fixed; width:100%;">
             <thead>
                 <tr>
                     <th style="width: 15%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -o-text-overflow: ellipsis; text-align: center !important;">Logo</th>
@@ -34,6 +37,6 @@
             </tbody>
         </table>
     </div>
-    <div class="mdl-cell mdl-cell--1-col-desktop"></div>
+    <div class="mdl-cell mdl-cell--1-col mdl-cell--hide-phone"></div>
 </div>
 {% endblock %}

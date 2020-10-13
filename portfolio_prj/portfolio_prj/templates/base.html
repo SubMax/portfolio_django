@@ -1,9 +1,36 @@
 <!doctype html>
+<!--
+  Material Design Lite
+  Copyright 2015 Google Inc. All rights reserved.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License
+-->
 {% load static %}
 <html lang="en-EN">
     <head>
         <title>{% block title %}{% endblock %}</title>
         <link rel="shortcut icon" href="{% block favicon %}{% endblock %}" />
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+        <!-- Add to homescreen for Chrome on Android -->
+        <meta name="mobile-web-app-capable" content="yes">
+        <!-- Add to homescreen for Safari on iOS -->
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-title" content="Material Design Lite">
+
         <meta property="og:type" content="article">
         <meta property="og:title" content="{% block title_open_graph %}{% endblock %}"/>
         <meta property="og:site_name" content="{% block name_open_graph %}{% endblock %}"/>
@@ -18,34 +45,36 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha512-s+xg36jbIujB2S2VKfpGmlC3T5V2TF3lY48DX7u2r9XzGzgPsa6wTpOQA7J9iffvdeBN0q9tKzRxVxw1JviZPg==" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     </head>
-    <body>
-        <div  class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-            <header class="mdl-layout__header">
-                <div class="mdl-layout__header-row">
-                    <span class="mdl-layout-title mdl-navigation__link mdl-layout--small-screen-only"></span>
-                    <a class="mdl-navigation__link mdl-layout--large-screen-only" href="/">Home</a>
+    <body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
+        <div class="mdl-layout__container has-scrolling-header">
+            <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header has-tabs is-upgraded is-small-screen">
+                <header class="mdl-layout__header mdl-layout__header--scroll mdl-color--primary">
+                    <div class="mdl-layout__header-row">
+                        <span class="mdl-layout-title mdl-navigation__link mdl-layout--small-screen-only"></span>
+                        <a class="mdl-navigation__link mdl-layout--large-screen-only" href="/">Home</a>
+                        <div class="mdl-layout-spacer"></div>
+                        <nav class="mdl-navigation mdl-layout--large-screen-only">
+                            <a class="mdl-navigation__link" href="/investinfo">Invest info</a>
+                            <a class="mdl-navigation__link" href="/investinfo/about">About</a>
+                        </nav>
+                    </div>
+                    {% block navi %}{% endblock %}
+                </header>
+                <div class="mdl-layout__drawer">
+                    <span class="mdl-layout-title"><a class="mdl-navigation__link" href="/" style="font-size: 20px;">Home</a></span>
                     <div class="mdl-layout-spacer"></div>
-                    <nav class="mdl-navigation mdl-layout--large-screen-only">
-                        <a class="mdl-navigation__link" href="/investinfo">Invest info</a>
-                        <a class="mdl-navigation__link" href="/investinfo/about">About</a>
+                    <nav class="mdl-navigation">
+                        <a class="mdl-navigation__link" href="/investinfo" style="font-size: 20px;">Invest info</a>
+                        <a class="mdl-navigation__link" href="/investinfo/about" style="font-size: 20px;">About</a>
                     </nav>
                 </div>
-            </header>
-            <div class="mdl-layout__drawer">
-                <span class="mdl-layout-title"><a class="mdl-navigation__link" href="/">Home</a></span>
-                <div class="mdl-layout-spacer"></div>
-                <nav class="mdl-navigation">
-                    <a class="mdl-navigation__link" href="/investinfo">Invest info</a>
-                    <a class="mdl-navigation__link" href="/investinfo/about">About</a>
-                </nav>
+                <main class="mdl-layout__content">
+                    <div class="page-content">
+                        {% block date%}{% endblock %}
+                        {% block content %}{% endblock %}
+                    </div>
+                </main>
             </div>
-            <main class="mdl-layout__content">
-                <div class="page-content">
-                    {% block navi %}{% endblock %}
-                    {% block date%}{% endblock %}
-                    {% block content %}{% endblock %}
-                </div>
-            </main>
         </div>
     </body>
 </html>

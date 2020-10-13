@@ -5,20 +5,42 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container-sm">
+    <div class="container">
+        <div class="mdl-grid">
+            <div class="mdl-cell mdl-cell--1-col mdl-cell--hide-phone"></div>
+            <div class="mdl-cell mdl-cell--10-col">
+                <h3>Описание</h3>
+                <p>Проект предназначен для сбора и хранения основной информации об
+                    <a href="https://ru.wikipedia.org/wiki/%D0%98%D0%BD%D0%B2%D0%B5%D1%81%D1%82%D0%B8%D1%86%D0%B8%D0%B8" >инвестиционных инструментах</a>,
+                    торгуемых на <a href="https://ru.wikipedia.org/wiki/%D0%9D%D1%8C%D1%8E-%D0%99%D0%BE%D1%80%D0%BA%D1%81%D0%BA%D0%B0%D1%8F_%D1%84%D0%BE%D0%BD%D0%B4%D0%BE%D0%B2%D0%B0%D1%8F_%D0%B1%D0%B8%D1%80%D0%B6%D0%B0">бирже</a>
+                    в New York.
+                </p>
+                <p>Информация об акциях получаем с помощью проекта <a href="https://github.com/ranaroussi/yfinance">yfinance</a>
+                    из <a href="https://g.co/kgs/n6dEUQ">Yahoo! Finance</a>.
+                </p>
+                <p>Внешний вид проекта построен на основе <a href="https://getmdl.io/index.html">Material Design Lite</a>
+                с использованием <a href="https://getmdl.io/started/index.html">Material Design Lite CDN</a>. Построение графиков цен с помощью
+                <a href="https://www.chartjs.org/">Chart.js</a> с использованием
+                <a href="https://www.jsdelivr.com/package/npm/chart.js">Chart.js CDN</a>.
+                </p>
+            </div>
+            <div class="mdl-cell mdl-cell--1-col mdl-cell--hide-phone"></div>
+        </div>
         <div class="container">
-            <div class="row">
-                <div class="col-sm" style="text-align:right">
+            <div class="mdl-grid">
+                <div class="mdl-cell mdl-cell--4-col mdl-cell--hide-phone"></div>
+                <div class="mdl-cell mdl-cell--2-col" style="text-align:right">
                     <p>Проект на GitHub</p>
                     <p>Почта</p>
                     <p>Skype</p>
                 </div>
-                <div class="col-sm" style="text-align:left">
+                <div class="mdl-cell mdl-cell--2-col" style="text-align:left">
                     <p><a href="https://github.com/SubMax/portfolio_django">/portfolio_django</a></p>
                     <p><a href="mailto:sub.m@live.ru?subject=Investinfo">sub.m@live.ru</a></p>
                     <p>@Soujiro2011</p>
                 </div>
-          </div>
+                <div class="mdl-cell mdl-cell--4-col mdl-cell--hide-phone"></div>
+            </div>
         </div>
     </div>
 {% endblock %}

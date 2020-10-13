@@ -29,19 +29,27 @@
 {% endblock %}
 
 {% block navi %}
-    <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <a class="nav-link active" href="/investinfo/{{ title }}">Описание</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/investinfo/{{ title }}/chart/1d/1m/">Детали</a>
-      </li>
-    </ul>
+    <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
+        <a class="mdl-layout__tab is-active" href="/investinfo/{{ title }}">Описание</a>
+        <a class="mdl-layout__tab" href="/investinfo/{{ title }}/chart/1d/1m/">Детали</a>
+    </div>
 {% endblock %}
 {% block content %}
-    <div class="container">
-        <p style="text-align:center"><img src="{{logo_url}}" alt="logo"></p>
-        <h1 align="center">{{ name }}</h1>
-        <p>{{ description }}</p>
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--1-col mdl-cell--hide-phone"></div>
+        <div class="mdl-cell mdl-cell--10-col">
+            <div class="mdl-card mdl-shadow--2dp" style="width: 98%;">
+                <div class="mdl-card__title" style="height: 400px; background: url({{logo_url}}) center; background-size: cover;">
+                    <h2 class="mdl-card__title-text">{{ name }}</h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    {{ description }}
+                </div>
+                <div class="mdl-card__actions">
+                ...
+                </div>
+            </div>
+        </div>
+        <div class="mdl-cell mdl-cell--1-col mdl-cell--hide-phone"></div>
     </div>
 {% endblock %}

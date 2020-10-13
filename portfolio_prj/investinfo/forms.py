@@ -10,10 +10,9 @@ class TickerForm(ModelForm):
         labels = {'ticker': ''}
         widgets = {
             'ticker': TextInput(attrs={
-                'class': "form-control",
+                'class': "mdl-textfield__input",
                 'type': "text",
-                'placeholder': "Название тикер",
-                'aria-describedby': "Введите название тикера"
+                'placeholder': "Ввдите название тикер"
             })
         }
 
@@ -25,8 +24,9 @@ class DateForm(Form):
     end = DateField(widget=TextInput(attrs={'type': "date", 'value': today, 'max': today}), label='')
     accept = DateField(widget=TextInput(attrs={
         'type': "submit",
-        'class': "btn btn-secondary",
-        'value': "Применить"
+        'class': "mdl-button mdl-js-button mdl-button--raised",
+        'value': "Ok",
+        # 'style': "height: 10px"
     }), label='')
 
 
@@ -35,7 +35,7 @@ class PeriodForm(Form):
     period = ChoiceField(choices=tuple_period, label='')
     ok = DateField(widget=TextInput(attrs={
         'type': "submit",
-        'class': "btn btn-secondary",
+        'class': "mdl-button mdl-js-button mdl-button--raised",
         'onClick': "dataSelect(this.form)",
         'value': "Ok"
     }), label='')
@@ -46,7 +46,7 @@ class IntervalForm(Form):
     interval = ChoiceField(choices=tuple_interval, label='')
     ok = DateField(widget=TextInput(attrs={
         'type': "submit",
-        'class': "btn btn-secondary",
+        'class': "mdl-button mdl-js-button mdl-button--raised",
         'onClick': "dataSelect(this.form)",
         'value': "Ok"
     }), label='')

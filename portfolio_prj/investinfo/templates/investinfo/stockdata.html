@@ -9,39 +9,16 @@
 {% endblock %}
 
 {% block navi %}
-    <ul class="nav nav-tabs">
-      <li class="nav-item">
-        <a class="nav-link" href="/investinfo/{{ title }}">Описание</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link active" href="/investinfo/{{ title }}/chart/{{ period }}/{{ interval }}/">Детали</a>
-      </li>
-    </ul>
+    <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
+        <a class="mdl-layout__tab" href="/investinfo/{{ title }}">Описание</a>
+        <a class="mdl-layout__tab is-active" href="/investinfo/{{ title }}/chart/{{ period }}/{{ interval }}/">Детали</a>
+    </div>
 {% endblock %}
 
 {% block content %}
 
 <div class="conteiner">
-    <div class="container-fluid">
-        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-            <form method="post">
-            {% csrf_token %}
-                <div class="btn-group mr-2" role="group">
-            {{dateform}}
-                </div>
-            </form>
-            <form method="post">
-                {% csrf_token %}
-                <div class="btn-group mr-2" role="group">
-                    {{ periodform }}
-                </div>
-                <div class="btn-group mr-2" role="group">
-                {{ intervalform }}
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="container-fluid">
+    <div class="container">
         <canvas id="myChart"></canvas>
         <div id="tickerName">{{ticker}}</div>
         <script type="text/javascript">
@@ -65,6 +42,23 @@
                   }
                 });
         </script>
+    </div>
+    <div class="container">
+        <div class="mdl-grid">
+            <div class="mdl-cell mdl-cell--6-col">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ dateform }}
+                </form>
+            </div>
+            <div class="mdl-cell mdl-cell--6-col">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ periodform }}
+                    {{ intervalform }}
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
