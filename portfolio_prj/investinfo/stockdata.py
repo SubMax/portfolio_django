@@ -22,7 +22,11 @@ def getstock_data(tickername):
     """
 
     info = []
-    ticker = Ticker(tickername).info
+    try:
+        ticker = Ticker(tickername).info
+    except KeyError:
+        info = None
+        return info
     info.append(ticker.get('symbol'))
     info.append(ticker.get('longName'))
     info.append(ticker.get('longBusinessSummary'))

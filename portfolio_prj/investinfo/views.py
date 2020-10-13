@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, Http404
 from .models import Ticker, Data
 from .forms import TickerForm, DateForm, PeriodForm, IntervalForm
 from .stockdata import getstock_data, fetchdata
@@ -48,8 +48,9 @@ def index(request):
             if Ticker.objects.get(ticker=request_ticker):
                 return redirect('ticker_info', ticker=request_ticker)
         except Ticker.DoesNotExist:
-            print("DoseNotExist")
             data = getstock_data(request_ticker)
+            if not data:
+                raise Http404
             new_ticker = Ticker(name=data[1],
                                 ticker=data[0],
                                 description=data[2],
