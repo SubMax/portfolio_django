@@ -33,18 +33,29 @@
                         borderColor: "#3e95cd",
                         fill: false
                         }]
-                  },
-                  options: {
-                    title: {
-                      display: true,
-                      text: 'Скорректированная цена закрытия акции'
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'Скорректированная цена закрытия акции'
+                            },
+                        legend: {
+                            position: 'top'
+                        },
+                        scales: {
+                            xAxes: [{
+                                ticks:{
+                                    maxRotation : 0,
+                                    autoSkipPadding : 50
+                                    },
+                                }],
+                            }
                     }
-                  }
                 });
         </script>
     </div>
     <div class="container">
-        <div class="mdl-grid">
+        <div class="mdl-grid tools">
             <div class="mdl-cell mdl-cell--6-col">
                 <form method="post">
                     {% csrf_token %}
