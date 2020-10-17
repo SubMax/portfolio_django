@@ -17,59 +17,42 @@
 
 {% block content %}
 
-<div class="conteiner">
+<div class="chart_wrapper">
     <div class="container">
-        <canvas id="myChart"></canvas>
+        <canvas id="myChart" class="chart_content" height="800px">Not support!</canvas>
         <div id="tickerName">{{ticker}}</div>
         <script type="text/javascript">
-            var ctx = document.getElementById('myChart').getContext('2d');
-            var myLineChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [{% for d in date %}'{{d}}',{% endfor %}],
-                    datasets: [{
-                        data: [{% for d in adjclose %}'{{d}}',{% endfor %}],
-                        label: "{{ title }}",
-                        borderColor: "#3e95cd",
-                        fill: false
-                        }]
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            text: 'Скорректированная цена закрытия акции'
-                            },
-                        legend: {
-                            position: 'top'
-                        },
-                        scales: {
-                            xAxes: [{
-                                ticks:{
-                                    maxRotation : 0,
-                                    autoSkipPadding : 50
-                                    },
-                                }],
-                            }
-                    }
-                });
+            var date = {{date|safe}};
+            var adjclose = {{adjclose|safe}}
         </script>
     </div>
-    <div class="container">
-        <div class="mdl-grid tools">
-            <div class="mdl-cell mdl-cell--6-col">
-                <form method="post">
-                    {% csrf_token %}
-                    {{ dateform }}
-                </form>
-            </div>
-            <div class="mdl-cell mdl-cell--6-col">
-                <form method="post">
-                    {% csrf_token %}
-                    {{ periodform }}
-                    {{ intervalform }}
-                </form>
-            </div>
-        </div>
+<!--    <div class="container">-->
+<!--        <div class="mdl-grid">-->
+<!--            <div class="mdl-cell mdl-cell">-->
+<!--                <form method="post">-->
+<!--                    {% csrf_token %}-->
+<!--                    {{ dateform }}-->
+<!--                </form>-->
+<!--            </div>-->
+<!--            <div class="mdl-cell mdl-cell">-->
+<!--                <form method="post">-->
+<!--                    {% csrf_token %}-->
+<!--                    {{ periodform }}-->
+<!--                    {{ intervalform }}-->
+<!--                </form>-->
+<!--            </div>-->
+<!--        </div>-->
+        <footer class="tool_bar">
+            <button class="tool_calendar">
+                <i class="material-icons">event</i>
+            </button>
+            <button class="tool_list">
+                <i class="material-icons">straighten</i>
+            </button>
+            <button class="tool_list">
+                <i class="material-icons">straighten</i>
+            </button>
+        </footer>
     </div>
 </div>
 {% endblock %}
