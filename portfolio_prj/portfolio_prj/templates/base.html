@@ -41,9 +41,6 @@
 
         <link rel="stylesheet" type="text/css" href="{% static 'investinfo/css/material.css' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'investinfo/css/Chart.css' %}">
-
-        <script src="{% static 'investinfo/js/material.js' %}"></script>
-        <script src="{% static 'investinfo/js/Chart.js' %}"></script>
     </head>
     <body class="mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
         <div class="mdl-layout__container has-scrolling-header">
@@ -51,7 +48,6 @@
                 <header class="mdl-layout__header mdl-layout__header--scroll mdl-color--primary">
                     <div class="mdl-layout__header-row">
                         <span class="mdl-layout-title mdl-navigation__link mdl-layout--small-screen-only"></span>
-                        <a class="mdl-navigation__link mdl-layout--large-screen-only" href="/">Home</a>
                         <div class="mdl-layout-spacer"></div>
                         <nav class="mdl-navigation mdl-layout--large-screen-only">
                             <a class="mdl-navigation__link" href="/investinfo">Invest info</a>
@@ -77,4 +73,7 @@
             </div>
         </div>
     </body>
+    <script src="{% static 'investinfo/js/material.js' %}"></script>
+    <script src="{% static 'investinfo/js/Chart.js' %}"></script>
+    <script src="{% static 'investinfo/js/InvestInfoChart.js' %}"></script>
 </html>
