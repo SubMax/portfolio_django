@@ -1,0 +1,55 @@
+.tool_bar{
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 5px 5px;
+  text-align: center;
+  color: rgb(158,158,158);
+  background-color: rgb(66,66,66);
+  flex: 0 0 auto;
+}
+
+.chart_content{
+  width: 100%;
+  flex: 1 0 auto;
+}
+
+.chart_wrapper{
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 122px);
+}
+
+.tool_bar .tool_list{
+  vertical-align: bottom;
+  font-size: 18px !important;
+}
+
+.tool_bar .tool_calendar{
+}
+
+.tool_calendar:hover{
+}
+
+.tool_list:hover{
+}
+
+@media screen and (max-width: 768px) and (orientation : portrait){
+  #myChart{
+    canvas {
+      height: 720px !important;
+    }
+  }
+}
+@media screen and (max-width: 768px) and (orientation : landscape){
+  #myChart{
+    canvas {
+      height: 400px !important;
+    }
+  }
+}
+@media screen{
+  #myChart{
+    canvas {
+      height: 400px !important;
+    }
+  }
+}
