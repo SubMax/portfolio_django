@@ -113,8 +113,6 @@ def stock_data_ticker(request,
     :return:
     """
 
-    info, data = None, None
-
     if request.method == 'GET':
         info = Ticker.objects.get(ticker=ticker)
         if period and interval and kwargs.__len__() < 3:
@@ -134,6 +132,10 @@ def stock_data_ticker(request,
             data = get_start_end_stock_data(ticker, start, end, interval)
 
     if request.method == 'POST':
+        info = Ticker.objects.get(ticker=ticker)
+        data = dict()
+        data['adjclose'] = (1, 2, 3)
+        data['date'] = (datetime.now(), datetime.now(), datetime.now())
         if request.POST.get('period') and request.POST.get('interval'):
             return redirect('chart_period',
                             ticker=ticker,
