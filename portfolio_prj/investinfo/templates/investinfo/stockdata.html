@@ -20,10 +20,10 @@
 <div class="chart_wrapper">
     <div class="container">
         <canvas id="myChart" class="chart_content" height="800px">Not support!</canvas>
-        <div id="tickerName">{{ticker}}</div>
         <script type="text/javascript">
             var date = {{date|safe}};
-            var adjclose = {{adjclose|safe}}
+            var adjclose = {{adjclose|safe}};
+            var labelname = '{{title}}';
         </script>
     </div>
 <!--    <div class="container">-->

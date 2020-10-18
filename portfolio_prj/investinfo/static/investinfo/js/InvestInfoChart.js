@@ -6,7 +6,7 @@ var myLineChart = new Chart(ctx, {
         labels: date,
         datasets: [{
             data: adjclose,
-            label: "{{ title }}",
+            label: labelname,
             borderColor: "#3e95cd",
             fill: false
             }]
@@ -35,6 +35,3 @@ var myLineChart = new Chart(ctx, {
                 }
         }
     });
-
-function heightCanvas(){
-}
