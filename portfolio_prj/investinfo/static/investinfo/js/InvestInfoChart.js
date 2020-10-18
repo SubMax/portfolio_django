@@ -7,7 +7,7 @@ var myLineChart = new Chart(ctx, {
         datasets: [{
             data: adjclose,
             label: labelname,
-            borderColor: "#3e95cd",
+            borderColor: "#3f51b5",
             fill: false
             }]
         },

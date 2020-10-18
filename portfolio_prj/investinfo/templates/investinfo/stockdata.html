@@ -19,7 +19,7 @@
 
 <div class="chart_wrapper">
     <div class="container">
-        <canvas id="myChart" class="chart_content" height="800px">Not support!</canvas>
+        <canvas id="myChart" class="chart_content" height="550px">Not support!</canvas>
         <script type="text/javascript">
             var date = {{date|safe}};
             var adjclose = {{adjclose|safe}};
@@ -47,6 +47,7 @@
                 {% csrf_token %}
                 {{ periodform }}
             </form>
+            &nbsp;
             <form method="post">
                 {% csrf_token %}
                 {{ intervalform }}
