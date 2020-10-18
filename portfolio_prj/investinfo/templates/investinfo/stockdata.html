@@ -26,32 +26,31 @@
             var labelname = '{{title}}';
         </script>
     </div>
-<!--    <div class="container">-->
-<!--        <div class="mdl-grid">-->
-<!--            <div class="mdl-cell mdl-cell">-->
-<!--                <form method="post">-->
-<!--                    {% csrf_token %}-->
-<!--                    {{ dateform }}-->
-<!--                </form>-->
-<!--            </div>-->
-<!--            <div class="mdl-cell mdl-cell">-->
-<!--                <form method="post">-->
-<!--                    {% csrf_token %}-->
-<!--                    {{ periodform }}-->
-<!--                    {{ intervalform }}-->
-<!--                </form>-->
-<!--            </div>-->
-<!--        </div>-->
         <footer class="tool_bar">
-            <button class="tool_calendar">
-                <i class="material-icons">event</i>
-            </button>
-            <button class="tool_list">
-                <i class="material-icons">straighten</i>
-            </button>
-            <button class="tool_list">
-                <i class="material-icons">straighten</i>
-            </button>
+<!--            <button class="tool_calendar">-->
+<!--                <i class="material-icons">event</i>-->
+<!--            </button>-->
+<!--            <button class="tool_list">-->
+<!--                <i class="material-icons">straighten</i>-->
+<!--            </button>-->
+<!--            <button class="tool_list">-->
+<!--                <i class="material-icons">straighten</i>-->
+<!--            </button>-->
+            <form method="post">
+                {% csrf_token %}
+                {{ dateform.start }}
+                {{ dateform.end }}
+                {{ dateform.accept }}
+            </form>
+            &nbsp;
+            <form method="post">
+                {% csrf_token %}
+                {{ periodform }}
+            </form>
+            <form method="post">
+                {% csrf_token %}
+                {{ intervalform }}
+            </form>
         </footer>
     </div>
 </div>

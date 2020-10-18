@@ -1,9 +1,13 @@
+#id_start, #id_end, #id_period, #id_interval {
+  height: 25px;
+}
 .tool_bar{
   border: 1px solid rgba(0, 0, 0, 0.12);
   padding: 5px 5px;
   text-align: center;
   color: rgb(158,158,158);
   background-color: rgb(66,66,66);
+  display: flex;
   flex: 0 0 auto;
 }
 
@@ -24,6 +28,7 @@
 }
 
 .tool_bar .tool_calendar{
+  width: 10px;
 }
 
 .tool_calendar:hover{
