@@ -32,6 +32,22 @@ var myLineChart = new Chart(ctx, {
                         lineHeight: 10
                         },
                     }]
+                },
+            plugins: {
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'x',
+                        speed: 20
+                    },
+                    zoom: {
+                        enabled: true,
+                        mode: 'x',
+                        speed: 1,
+                        threshold: 10,
+                        drag: false
+                        }
+                    }
                 }
-        }
+            }
     });
