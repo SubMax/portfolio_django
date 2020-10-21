@@ -31,7 +31,7 @@ class DateForm(Form):
 
 
 class PeriodForm(Form):
-    tuple_period = ((p, p) for p in "1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max".split(','))
+    tuple_period = ((p, p) for p in "1d,5d,1mo,3mo,6mo".split(','))
     period = ChoiceField(choices=tuple_period, label='')
     ok = DateField(widget=TextInput(attrs={
         'type': "submit",
@@ -42,7 +42,7 @@ class PeriodForm(Form):
 
 
 class IntervalForm(Form):
-    tuple_interval = ((p, p) for p in "1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo".split(','))
+    tuple_interval = ((p, p) for p in "1m,2m,5m,15m,30m,60m".split(','))
     interval = ChoiceField(choices=tuple_interval, label='')
     ok = DateField(widget=TextInput(attrs={
         'type': "submit",

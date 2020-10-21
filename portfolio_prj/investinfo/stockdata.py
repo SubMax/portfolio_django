@@ -73,6 +73,8 @@ def fetchdata(**kwargs):
                              end=end,
                              period=period,
                              interval='60m')
+        if download_errors:
+            raise StockDataIntervalValueError(tickername, download_errors.get(tickername))
 
     dataframe.columns = dataframe.columns.str.replace(' ', '')
     # удаление пробелов в названиях столбцов

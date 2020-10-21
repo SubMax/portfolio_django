@@ -132,10 +132,6 @@ def stock_data_ticker(request,
             data = get_start_end_stock_data(ticker, start, end, interval)
 
     if request.method == 'POST':
-        info = Ticker.objects.get(ticker=ticker)
-        data = dict()
-        data['adjclose'] = (1, 2, 3)
-        data['date'] = (datetime.now(), datetime.now(), datetime.now())
         if request.POST.get('period') and request.POST.get('interval'):
             return redirect('chart_period',
                             ticker=ticker,
@@ -218,6 +214,9 @@ def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
                 'adjclose': None}
     global DICT_INTERVAL
 
+    if start > end:
+        start, end = end, start
+
     query_data = Data.objects.all().filter(ticker_id=ticker, datetime__gte=start,
                                            datetime__lte=end).order_by('datetime').distinct()
     data['date'] = [i[0] for i in query_data.values_list(
@@ -226,20 +225,29 @@ def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
         'adjclose')][::DICT_INTERVAL.get(interval)]  # Danger
     if not data['date'] and not data['adjclose']:
         fetchdata(tickername=ticker, start=start, end=end, interval=interval)
-        data = get_start_end_stock_data(ticker, start, end, interval)
+        try:
+            data = get_start_end_stock_data(ticker, start, end, interval)
+        except:
+            return data
     first = data['date'][0]
     last = data['date'][-1]
 
     if first > start:
         fetchdata(tickername=ticker, start=start, end=first, interval=interval)
-        pre_query_data = Data.objects.all().filter(ticker_id=ticker,
-                                                   datetime__gte=start,
-                                                   datetime__lte=first).order_by('datetime').distinct()
+        try:
+            pre_query_data = Data.objects.all().filter(ticker_id=ticker,
+                                                       datetime__gte=start,
+                                                       datetime__lte=first).order_by('datetime').distinct()
+        except:
+            print('pre_query_data: None')
     if last < end:
         fetchdata(tickername=ticker, start=last, end=end, interval=interval)
-        post_query_data = Data.objects.all().filter(ticker_id=ticker,
-                                                    datetime__gte=last,
-                                                    datetime__lte=end).order_by('datetime').distinct()
+        try:
+            post_query_data = Data.objects.all().filter(ticker_id=ticker,
+                                                        datetime__gte=last,
+                                                        datetime__lte=end).order_by('datetime').distinct()
+        except:
+            print('post_query_data: None')
 
     all_query_data = pre_query_data | query_data | post_query_data
     data['date'] = [i[0] for i in all_query_data.values_list(
