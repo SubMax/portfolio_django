@@ -5,6 +5,7 @@ import os
 from yfinance import Ticker, download, shared
 
 from .stockdataexception import StockDataIntervalValueError
+# from portfolio_prj.investinfo.stockdataexception import StockDataIntervalValueError
 import time
 
 '''
@@ -48,7 +49,8 @@ def fetchdata(**kwargs):
     end = kwargs.get('end')
     period = kwargs.get('period')
     interval = kwargs.get('interval')
-    download_errors = shared._ERRORS
+    _shared = shared
+    download_errors = _shared._ERRORS
 
     if not interval:
         interval = '1m'
@@ -65,6 +67,7 @@ def fetchdata(**kwargs):
                              end=end,
                              period=period,
                              interval=interval)
+        download_errors = _shared._ERRORS
         if download_errors:
             raise StockDataIntervalValueError(tickername, download_errors.get(tickername))
     except StockDataIntervalValueError:
@@ -76,6 +79,7 @@ def fetchdata(**kwargs):
         if download_errors:
             raise StockDataIntervalValueError(tickername, download_errors.get(tickername))
 
+    dataframe.dropna(inplace=True)
     dataframe.columns = dataframe.columns.str.replace(' ', '')
     # удаление пробелов в названиях столбцов
     dataframe.insert(loc=len(dataframe.columns),
@@ -100,5 +104,4 @@ if __name__ == "__main__":
     #                 start='2020-09-19',
     #                 end='2020-09-22',
     #                 interval='15m'))
-    # fetchdata(tickername='A', period='5d', interval='1m')
-    print(time.strftime('%Y-%m-%d %X', time.localtime('1596222000')))
+    fetchdata(tickername='A', period='max', interval='1wk')

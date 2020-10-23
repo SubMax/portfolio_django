@@ -17,19 +17,6 @@ class TickerForm(ModelForm):
         }
 
 
-class DateForm(Form):
-    today = date.today()
-    yesterday = today - timedelta(days=1)
-    start = DateField(widget=TextInput(attrs={'type': "date", 'value': yesterday, 'max': today}), label='')
-    end = DateField(widget=TextInput(attrs={'type': "date", 'value': today, 'max': today}), label='')
-    accept = DateField(widget=TextInput(attrs={
-        'type': "submit",
-        'class': "mdl-button mdl-js-button mdl-button--raised",
-        'value': "Ok",
-        # 'style': "height: 10px"
-    }), label='')
-
-
 class PeriodForm(Form):
     tuple_period = ((p, p) for p in "1d,5d,1mo,3mo,6mo".split(','))
     period = ChoiceField(choices=tuple_period, label='')
@@ -50,3 +37,17 @@ class IntervalForm(Form):
         'onClick': "dataSelect(this.form)",
         'value': "Ok"
     }), label='')
+
+
+class DateForm(Form):
+    today = date.today()
+    yesterday = today - timedelta(days=1)
+    start = DateField(widget=TextInput(attrs={'type': "date", 'value': yesterday, 'max': today}), label='')
+    end = DateField(widget=TextInput(attrs={'type': "date", 'value': today, 'max': today}), label='')
+    accept = DateField(widget=TextInput(attrs={
+        'type': "submit",
+        'class': "mdl-button mdl-js-button mdl-button--raised",
+        'value': "Ok",
+        # 'style': "height: 10px"
+    }), label='')
+    date_interval = IntervalForm()

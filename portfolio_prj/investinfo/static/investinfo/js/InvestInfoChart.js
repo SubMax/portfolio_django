@@ -38,13 +38,11 @@ var myLineChart = new Chart(ctx, {
                     pan: {
                         enabled: true,
                         mode: 'x',
-                        speed: 20
                     },
                     zoom: {
                         enabled: true,
                         mode: 'x',
-                        speed: 1,
-                        threshold: 10,
+                        speed: 0.001,
                         drag: false
                         }
                     }
