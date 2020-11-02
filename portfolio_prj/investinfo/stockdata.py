@@ -4,8 +4,7 @@ import os
 
 from yfinance import Ticker, download, shared
 
-from .stockdataexception import StockDataIntervalValueError
-# from portfolio_prj.investinfo.stockdataexception import StockDataIntervalValueError
+from .stockdataexception import StockDataIntervalValueError, StockDataValueError
 import time
 
 '''
@@ -15,23 +14,18 @@ import time
 '''
 
 
-def getstock_data(tickername):
+def get_info_data(tickername):
     """
     :param tickername: краткое название биржевого инструмента
     :return: возвращает список из [тикера, название компании,
      описание компании, ссылка на лого]
     """
 
-    info = []
+    info = {}
     try:
-        ticker = Ticker(tickername).info
-    except:
+        info = Ticker(tickername).info
+    except (IndexError, ):
         info = None
-        return info
-    info.append(ticker.get('symbol'))
-    info.append(ticker.get('longName'))
-    info.append(ticker.get('longBusinessSummary'))
-    info.append(ticker.get('logo_url'))
     return info
 
 
@@ -99,7 +93,7 @@ def fetchdata(**kwargs):
 
 
 if __name__ == "__main__":
-    # print(getstock_data('msft'))
+    # print(get_info_data('msft'))
     # print(fetchdata(tickerName='MSFT',
     #                 start='2020-09-19',
     #                 end='2020-09-22',

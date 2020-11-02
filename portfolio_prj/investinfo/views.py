@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, Http404
 from .models import Ticker, Data
 from .forms import TickerForm, DateForm, PeriodForm, IntervalForm
-from .stockdata import getstock_data, fetchdata
+from .stockdata import get_info_data, fetchdata
 from datetime import datetime, timedelta, timezone
 import re
 
@@ -43,22 +43,10 @@ def index(request):
     """
 
     if request.method == "POST":
-        request_ticker = request.POST['ticker'].upper()
-        try:
-            if Ticker.objects.get(ticker=request_ticker):
-                return redirect('ticker_info', ticker=request_ticker)
-        except Ticker.DoesNotExist:
-            data = getstock_data(request_ticker)
-            if not data:
-                raise Http404
-            new_ticker = Ticker(name=data[1],
-                                ticker=data[0],
-                                description=data[2],
-                                logo_url=data[3])
-            new_ticker.save()
-            return description_ticker(request, request_ticker)
+        request_ticker = request.POST.get('symbol', 'DIS').upper()
+        return redirect('ticker_info', ticker=request_ticker)
 
-    list_ticker = Ticker.objects.all().order_by('ticker')
+    list_ticker = Ticker.available.available_list()
     ticker_form = TickerForm()
 
     context = {
@@ -85,13 +73,13 @@ def description_ticker(request, ticker):
     :param ticker: наименование тикера
     :return:
     """
-    information = Ticker.objects.get(ticker=ticker)
+    information = Ticker.available.information(ticker_name=ticker)
 
     context = {
-        'title': information.ticker,
-        'name': information.name,
-        'description': information.description,
-        'logo_url': information.logo_url,
+        'title': information.get('symbol'),
+        'name': information.get('longName'),
+        'description': information.get('longBusinessSummary'),
+        'logo_url': information.get('logo_url'),
     }
     return render(request, 'investinfo/ticker.html', context=context)
 
@@ -114,7 +102,8 @@ def stock_data_ticker(request,
     """
 
     if request.method == 'GET':
-        info = Ticker.objects.get(ticker=ticker)
+        info = Ticker.available.information(ticker_name=ticker)
+
         if period and interval and kwargs.__len__() < 3:
             data = get_period_stock_data(ticker, period, interval)
             if not data['date'] and not data['adjclose'] and text:
@@ -165,7 +154,7 @@ def stock_data_ticker(request,
         'title': ticker,
         'period': period,
         'interval': interval,
-        'logo_url': info.logo_url,
+        'logo_url': info.get('logo_url'),
         'date': [d.strftime('%d-%m-%y %H:%M') for d in data['date']],
         'adjclose': data['adjclose'],
         'dateform': date_form,

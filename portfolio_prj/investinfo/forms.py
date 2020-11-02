@@ -6,13 +6,13 @@ from datetime import date, timedelta
 class TickerForm(ModelForm):
     class Meta:
         model = Ticker
-        fields = ['ticker']
-        labels = {'ticker': ''}
+        fields = ['symbol']
+        labels = {'symbol': ''}
         widgets = {
-            'ticker': TextInput(attrs={
+            'symbol': TextInput(attrs={
                 'class': "mdl-textfield__input",
                 'type': "text",
-                'placeholder': "Ввдите название тикер"
+                'placeholder': "Ввдите название тикер",
             })
         }
 

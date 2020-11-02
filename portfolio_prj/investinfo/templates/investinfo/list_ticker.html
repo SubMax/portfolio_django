@@ -30,8 +30,8 @@
                 {% for ticker in list_ticker %}
                     <tr>
                         <td style="text-align: center !important;"><img height="100%" src="{{ ticker.logo_url }}" alt="logo"></td>
-                        <td style="text-align: center !important;"><a href="/investinfo/{{ ticker.pk }}">{{ ticker.name }}</a></td>
-                        <td style="text-align: center !important;"><a href="/investinfo/{{ ticker.pk }}">{{ ticker.ticker }}</a></td>
+                        <td style="text-align: center !important;"><a href="/investinfo/{{ ticker.pk }}">{{ ticker.longName }}</a></td>
+                        <td style="text-align: center !important;"><a href="/investinfo/{{ ticker.pk }}">{{ ticker.symbol }}</a></td>
                     </tr>
                 {% endfor %}
             </tbody>
