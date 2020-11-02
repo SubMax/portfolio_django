@@ -1,6 +1,7 @@
 from django.db import models
 from django.shortcuts import Http404
-from .stockdata import get_info_data
+from datetime import datetime, timedelta, timezone
+from .stockdata import get_info_data, fetch_data
 
 
 class TickerManager(models.Manager):
@@ -29,6 +30,72 @@ class TickerManager(models.Manager):
         return ticker_info
 
 
+class DataManager(models.Manager):
+    DICT_PERIOD = {
+        '1d': 1,
+        '5d': 5,
+        '1mo': 30,
+        '3mo': 90,
+        '6mo': 180,
+        '1y': 365,
+        '2y': 730,
+        '5y': 365 * 5,
+        '10y': 365 * 10,
+        'ytd': 365 * 10,
+        'max': 40 * 365
+    }
+    DICT_INTERVAL = {
+        '1m': 1,
+        '2m': 2,
+        '5m': 5,
+        '15m': 15,
+        '30m': 30,
+        '60m': 60,
+        '90m': 90,
+        '1h': 60,
+        '1d': 24 * 60,
+        '5d': 24 * 60 * 5,
+        '1wk': 24 * 60 * 7,
+        '1mo': 24 * 60 * 30,
+        '3mo': 24 * 60 * 90
+    }
+
+    def query_set_to_dict(self, data, qs, interval):
+        global DICT_INTERVAL
+        data['date'] = [i[0] for i in qs.values_list(
+            'datetime')][::self.DICT_INTERVAL.get(interval, 1)]
+        data['adjclose'] = [float(i[0]) for i in qs.values_list(
+            'adjclose')][::self.DICT_INTERVAL.get(interval, 1)]
+        return data
+
+    def stock_period_data(self, ticker_name, period, interval):
+        data = {
+            'date': None,
+            'adjclose': None,
+        }
+
+        if period and interval:
+            point_date = datetime.now() - timedelta(days=self.DICT_PERIOD.get(period, 1),
+                                                    hours=datetime.now().hour,
+                                                    minutes=datetime.now().minute,
+                                                    seconds=datetime.now().second,
+                                                    microseconds=datetime.now().microsecond)
+            query_data = super(DataManager, self).get_queryset().filter(ticker_id=ticker_name,
+                                                   datetime__gte=point_date).order_by('datetime').distinct()
+            data = self.query_set_to_dict(data, query_data, interval)
+
+        if not data['date'] and not data['adjclose']:
+            fetch_data(ticker_name=ticker_name, period=period, interval=interval)
+            query_data = super(DataManager, self).get_queryset().filter(ticker_id=ticker_name,
+                                                   datetime__gte=point_date).order_by('datetime').distinct()
+            data = self.query_set_to_dict(data, query_data, interval)
+
+        return data
+
+    def start_end_data(self):
+        pass
+
+
 class Ticker(models.Model):
     longName = models.CharField(max_length=20)
     symbol = models.CharField(max_length=20, primary_key=True)
@@ -47,6 +114,4 @@ class Data(models.Model):
     close = models.DecimalField(max_digits=11, decimal_places=5)
     adjclose = models.DecimalField(max_digits=11, decimal_places=5)
     volume = models.IntegerField()
-
-    # def __str__(self):
-    #     return 's%' % self.datetime
+    get_data = DataManager()

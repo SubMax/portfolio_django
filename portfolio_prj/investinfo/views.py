@@ -1,38 +1,39 @@
 from django.shortcuts import render, redirect, Http404
 from .models import Ticker, Data
 from .forms import TickerForm, DateForm, PeriodForm, IntervalForm
-from .stockdata import get_info_data, fetchdata
+from .stockdata import fetch_data
 from datetime import datetime, timedelta, timezone
 import re
 
-DICT_PERIOD = {
-    '1d': 1,
-    '5d': 5,
-    '1mo': 30,
-    '3mo': 90,
-    '6mo': 180,
-    '1y': 365,
-    '2y': 730,
-    '5y': 365 * 5,
-    '10y': 365 * 10,
-    'ytd': 10,
-    'max': 40*365
+DICT_VALID_PERIOD = {
+    '1d': '1d',
+    '5d': '5d',
+    '1mo': '1mo',
+    '3mo': '3mo',
+    '6mo': '6mo',
+    '1y': '1y',
+    '2y': '2y',
+    '5y': '5y',
+    '10y': '10y',
+    'ytd': 'ytd',
+    'max': 'ytd'
 }
-DICT_INTERVAL = {
-    '1m': 1,
-    '2m': 2,
-    '5m': 5,
-    '15m': 15,
-    '30m': 30,
-    '60m': 60,
-    '90m': 90,
-    '1h': 60,
-    '1d': 24 * 60,
-    '5d': 1,
-    '1wk': 2,
-    '1mo': 3,
-    '3mo': 4
+DICT_VALID_INTERVAL = {
+    '1m': '1m',
+    '2m': '2m',
+    '5m': '5m',
+    '15m': '15m',
+    '30m': '30m',
+    '60m': '60m',
+    '90m': '90m',
+    '1h': '1h',
+    '1d': '1d',
+    '5d': '5d',
+    '1wk': '1wk',
+    '1mo': '1mo',
+    '3mo': '3mo'
 }
+
 
 
 def index(request):
@@ -105,10 +106,9 @@ def stock_data_ticker(request,
         info = Ticker.available.information(ticker_name=ticker)
 
         if period and interval and kwargs.__len__() < 3:
-            data = get_period_stock_data(ticker, period, interval)
-            if not data['date'] and not data['adjclose'] and text:
-                fetchdata(tickername=ticker, period=period, interval=interval)
-                data = get_period_stock_data(ticker, period, interval)
+            data = Data.get_data.stock_period_data(ticker_name=ticker,
+                                                   period=DICT_VALID_PERIOD.get(period, '1d'),
+                                                   interval=DICT_VALID_INTERVAL.get(interval, '1m'))
         elif kwargs.__len__() == 6:
             start = datetime(year=kwargs.get('ystart'),
                              month=kwargs.get('mstart'),
@@ -164,34 +164,6 @@ def stock_data_ticker(request,
     return render(request, 'investinfo/stockdata.html', context=context)
 
 
-def get_period_stock_data(ticker, period='1d', interval='1m'):
-    """
-    Получение данных за период.
-    :param ticker: наименование тикера
-    :param period: запрашиваемы период
-    :param interval: запрашиваемый интервал
-    :return:
-    """
-    data = {'date': None,
-            'adjclose': None}
-    global DICT_PERIOD
-    global DICT_INTERVAL
-
-    if period and interval:
-        point_date = datetime.now() - timedelta(days=DICT_PERIOD.get(period),
-                                                hours=datetime.now().hour,
-                                                minutes=datetime.now().minute,
-                                                seconds=datetime.now().second,
-                                                microseconds=datetime.now().microsecond)
-        qdata = Data.objects.all().filter(ticker_id=ticker,
-                                          datetime__gte=point_date).order_by('datetime').distinct()
-        data['date'] = [i[0] for i in qdata.values_list(
-            'datetime')][::DICT_INTERVAL.get(interval)]
-        data['adjclose'] = [float(i[0]) for i in qdata.values_list(
-            'adjclose')][::DICT_INTERVAL.get(interval)]
-    return data
-
-
 def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
     """
     Получение данных в промежуток
@@ -202,7 +174,7 @@ def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
     :param data:
     :return:
     """
-    global DICT_INTERVAL
+    global DICT_VALID_INTERVAL
 
     if start > end:
         start, end = end, start
@@ -215,21 +187,21 @@ def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
                                                datetime__lte=end).order_by('datetime').distinct()
 
     data['date'] = [i[0] for i in query_data.values_list(
-        'datetime')][::DICT_INTERVAL.get(interval)]
+        'datetime')][::DICT_VALID_INTERVAL.get(interval)]
     data['adjclose'] = [float(i[0]) for i in query_data.values_list(
-        'adjclose')][::DICT_INTERVAL.get(interval)]  # Danger
+        'adjclose')][::DICT_VALID_INTERVAL.get(interval)]  # Danger
 
     if not data['date'] and not data['adjclose']:
         try:
-            fetchdata(tickername=ticker, start=start, end=end, interval=interval)
+            fetch_data(tickername=ticker, start=start, end=end, interval=interval)
             query_data = Data.objects.all().filter(ticker_id=ticker,
                                                    datetime__gte=start,
                                                    datetime__lte=end).order_by('datetime').distinct()
 
             data['date'] = [i[0] for i in query_data.values_list(
-                'datetime')][::DICT_INTERVAL.get(interval)]
+                'datetime')][::DICT_VALID_INTERVAL.get(interval)]
             data['adjclose'] = [float(i[0]) for i in query_data.values_list(
-                'adjclose')][::DICT_INTERVAL.get(interval)]
+                'adjclose')][::DICT_VALID_INTERVAL.get(interval)]
         except:
             return data
 
@@ -239,7 +211,7 @@ def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
 
         if first > start:
             try:
-                fetchdata(tickername=ticker, start=start, end=first, interval=interval)
+                fetch_data(tickername=ticker, start=start, end=first, interval=interval)
             except:
                 print('pre_query_data: None')
             pre_query_data = Data.objects.all().filter(ticker_id=ticker,
@@ -248,7 +220,7 @@ def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
 
         if last < end:
             try:
-                fetchdata(tickername=ticker, start=last, end=end, interval=interval)
+                fetch_data(tickername=ticker, start=last, end=end, interval=interval)
 
             except:
                 print('post_query_data: None')
@@ -259,9 +231,9 @@ def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
         all_query_data = pre_query_data | query_data | post_query_data
 
         data['date'] = [i[0] for i in all_query_data.values_list(
-            'datetime')][::DICT_INTERVAL.get(interval)]
+            'datetime')][::DICT_VALID_INTERVAL.get(interval)]
         data['adjclose'] = [float(i[0]) for i in all_query_data.values_list(
-            'adjclose')][::DICT_INTERVAL.get(interval)]
+            'adjclose')][::DICT_VALID_INTERVAL.get(interval)]
 
     return data
 
