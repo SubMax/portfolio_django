@@ -81,19 +81,73 @@ class DataManager(models.Manager):
                                                     seconds=datetime.now().second,
                                                     microseconds=datetime.now().microsecond)
             query_data = super(DataManager, self).get_queryset().filter(ticker_id=ticker_name,
-                                                   datetime__gte=point_date).order_by('datetime').distinct()
+                                                                        datetime__gte=point_date).order_by(
+                'datetime').distinct()
             data = self.query_set_to_dict(data, query_data, interval)
 
         if not data['date'] and not data['adjclose']:
             fetch_data(ticker_name=ticker_name, period=period, interval=interval)
             query_data = super(DataManager, self).get_queryset().filter(ticker_id=ticker_name,
-                                                   datetime__gte=point_date).order_by('datetime').distinct()
+                                                                        datetime__gte=point_date).order_by(
+                'datetime').distinct()
             data = self.query_set_to_dict(data, query_data, interval)
 
         return data
 
-    def start_end_data(self):
-        pass
+    def start_end_data(self, ticker_name, start, end, interval):
+        data = {
+            'date': None,
+            'adjclose': None,
+        }
+        if start > end:
+            start, end = end, start
+
+        query_data = super(DataManager, self).get_queryset().filter(
+            ticker_id=ticker_name,
+            datetime__gte=start,
+            datetime__lte=end).order_by('datetime').distinct()
+        data = self.query_set_to_dict(data, query_data, self.DICT_INTERVAL.get(interval, 1))
+
+        if not data['date'] and not data['adjclose']:
+            try:
+                fetch_data(tickername=ticker_name, start=start, end=end, interval=interval)
+                query_data = super(DataManager, self).get_queryset().filter(
+                    ticker_id=ticker_name,
+                    datetime__gte=start,
+                    datetime__lte=end).order_by('datetime').distinct()
+                data = self.query_set_to_dict(data, query_data, self.DICT_INTERVAL.get(interval, 1))
+            except:
+                return data
+
+        if data['date'] and data['adjclose']:
+            first = data['date'][0]
+            last = data['date'][-1]
+
+            if first > start:
+                try:
+                    fetch_data(tickername=ticker_name, start=start, end=first, interval=interval)
+                except:
+                    print('pre_query_data: None')
+                    pre_query_data = super(DataManager, self).get_queryset().filter(
+                        ticker_id=ticker_name,
+                        datetime__gte=start,
+                        datetime__lte=first).order_by('datetime').distinct()
+
+            if last < end:
+                try:
+                    fetch_data(tickername=ticker_name, start=last, end=end, interval=interval)
+
+                except:
+                    print('post_query_data: None')
+                    post_query_data = super(DataManager, self).get_queryset().filter(
+                        ticker_id=ticker_name,
+                        datetime__gte=last,
+                        datetime__lte=end).order_by('datetime').distinct()
+
+            all_query_data = pre_query_data | query_data | post_query_data
+            data = self.query_set_to_dict(data, all_query_data, self.DICT_INTERVAL.get(interval, 1))
+
+        return data
 
 
 class Ticker(models.Model):

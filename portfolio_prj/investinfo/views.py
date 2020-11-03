@@ -118,7 +118,10 @@ def stock_data_ticker(request,
                            month=kwargs.get('mend'),
                            day=kwargs.get('dend') + 1,
                            tzinfo=timezone(-timedelta(hours=4)))
-            data = get_start_end_stock_data(ticker, start, end, interval)
+            data = Data.get_data.start_end_data(ticker_name=ticker,
+                                                start=start,
+                                                end=end,
+                                                interval=DICT_VALID_INTERVAL.get(interval, '1m'))
 
     if request.method == 'POST':
         if request.POST.get('period') and request.POST.get('interval'):
@@ -162,80 +165,6 @@ def stock_data_ticker(request,
         'intervalform': interval_form
     }
     return render(request, 'investinfo/stockdata.html', context=context)
-
-
-def get_start_end_stock_data(ticker, start, end, interval='1m', data=None):
-    """
-    Получение данных в промежуток
-    :param ticker: наименование тикера
-    :param start: начало промежутка
-    :param end: конец промежутка
-    :param interval: запрашиваемый интервал
-    :param data:
-    :return:
-    """
-    global DICT_VALID_INTERVAL
-
-    if start > end:
-        start, end = end, start
-
-    if not data:
-        data = {'date': None,
-                'adjclose': None}
-        query_data = Data.objects.all().filter(ticker_id=ticker,
-                                               datetime__gte=start,
-                                               datetime__lte=end).order_by('datetime').distinct()
-
-    data['date'] = [i[0] for i in query_data.values_list(
-        'datetime')][::DICT_VALID_INTERVAL.get(interval)]
-    data['adjclose'] = [float(i[0]) for i in query_data.values_list(
-        'adjclose')][::DICT_VALID_INTERVAL.get(interval)]  # Danger
-
-    if not data['date'] and not data['adjclose']:
-        try:
-            fetch_data(tickername=ticker, start=start, end=end, interval=interval)
-            query_data = Data.objects.all().filter(ticker_id=ticker,
-                                                   datetime__gte=start,
-                                                   datetime__lte=end).order_by('datetime').distinct()
-
-            data['date'] = [i[0] for i in query_data.values_list(
-                'datetime')][::DICT_VALID_INTERVAL.get(interval)]
-            data['adjclose'] = [float(i[0]) for i in query_data.values_list(
-                'adjclose')][::DICT_VALID_INTERVAL.get(interval)]
-        except:
-            return data
-
-    if data['date'] and data['adjclose']:
-        first = data['date'][0]
-        last = data['date'][-1]
-
-        if first > start:
-            try:
-                fetch_data(tickername=ticker, start=start, end=first, interval=interval)
-            except:
-                print('pre_query_data: None')
-            pre_query_data = Data.objects.all().filter(ticker_id=ticker,
-                                                       datetime__gte=start,
-                                                       datetime__lte=first).order_by('datetime').distinct()
-
-        if last < end:
-            try:
-                fetch_data(tickername=ticker, start=last, end=end, interval=interval)
-
-            except:
-                print('post_query_data: None')
-            post_query_data = Data.objects.all().filter(ticker_id=ticker,
-                                                        datetime__gte=last,
-                                                        datetime__lte=end).order_by('datetime').distinct()
-
-        all_query_data = pre_query_data | query_data | post_query_data
-
-        data['date'] = [i[0] for i in all_query_data.values_list(
-            'datetime')][::DICT_VALID_INTERVAL.get(interval)]
-        data['adjclose'] = [float(i[0]) for i in all_query_data.values_list(
-            'adjclose')][::DICT_VALID_INTERVAL.get(interval)]
-
-    return data
 
 
 def lst_to_date(lst):
