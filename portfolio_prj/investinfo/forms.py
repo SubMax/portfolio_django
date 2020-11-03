@@ -13,6 +13,7 @@ class TickerForm(ModelForm):
                 'class': "mdl-textfield__input",
                 'type': "text",
                 'placeholder': "Ввдите название тикер",
+                'pattern': '[A-Za-z]{1,}',
             })
         }
 
