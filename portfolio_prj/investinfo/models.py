@@ -172,3 +172,9 @@ class Data(models.Model):
     adjclose = models.DecimalField(max_digits=11, decimal_places=5)
     volume = models.IntegerField()
     get_data = DataManager()
+
+    class Meta:
+        db_table = 'investinfo_data'
+        constraints = [
+            models.UniqueConstraint(fields=['ticker_id', 'datetime'], name='unique data record')
+        ]
