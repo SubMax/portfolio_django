@@ -1,6 +1,6 @@
 from django.db import models
 from django.shortcuts import Http404
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from .stockdata import get_info_data, fetch_data
 
 
@@ -110,7 +110,7 @@ class DataManager(models.Manager):
 
         if not data['date'] and not data['adjclose']:
             try:
-                fetch_data(tickername=ticker_name, start=start, end=end, interval=interval)
+                fetch_data(ticker_name=ticker_name, start=start, end=end, interval=interval)
                 query_data = super(DataManager, self).get_queryset().filter(
                     ticker_id=ticker_name,
                     datetime__gte=start,
@@ -122,29 +122,32 @@ class DataManager(models.Manager):
         if data['date'] and data['adjclose']:
             first = data['date'][0]
             last = data['date'][-1]
+            all_query_data = query_data
 
             if first > start:
                 try:
-                    fetch_data(tickername=ticker_name, start=start, end=first, interval=interval)
-                except:
-                    print('pre_query_data: None')
+                    fetch_data(ticker_name=ticker_name, start=start, end=first, interval=interval)
                     pre_query_data = super(DataManager, self).get_queryset().filter(
                         ticker_id=ticker_name,
                         datetime__gte=start,
                         datetime__lte=first).order_by('datetime').distinct()
+                    all_query_data = pre_query_data | all_query_data
+                except:
+                    print('pre_query_data: None')
+                    pre_query_data = None
 
             if last < end:
                 try:
-                    fetch_data(tickername=ticker_name, start=last, end=end, interval=interval)
-
-                except:
-                    print('post_query_data: None')
+                    fetch_data(ticker_name=ticker_name, start=last, end=end, interval=interval)
                     post_query_data = super(DataManager, self).get_queryset().filter(
                         ticker_id=ticker_name,
                         datetime__gte=last,
                         datetime__lte=end).order_by('datetime').distinct()
+                    all_query_data = all_query_data | post_query_data
+                except:
+                    print('post_query_data: None')
+                    post_query_data = None
 
-            all_query_data = pre_query_data | query_data | post_query_data
             data = self.query_set_to_dict(data, all_query_data, self.DICT_INTERVAL.get(interval, 1))
 
         return data

@@ -3,6 +3,7 @@ import sqlite3
 import os
 from yfinance import Ticker, download, shared
 from .stockdataexception import StockDataIntervalValueError
+from datetime import datetime
 '''
 Модуль для работы с yfinance, для получения
 информации об инвестиционных инструментах
@@ -37,18 +38,24 @@ def fetch_data(**kwargs):
     ticker_name = kwargs.get('ticker_name')
     start = kwargs.get('start')
     end = kwargs.get('end')
-    period = kwargs.get('period', 1)
-    interval = kwargs.get('interval', 1)
+    period = kwargs.get('period', '1d')
+    interval = kwargs.get('interval', '1m')
     _shared = shared
     download_errors = _shared._ERRORS
 
+    if isinstance(start, datetime):
+        start = datetime_to_str(start)
+    if isinstance(end, datetime):
+        end = datetime_to_str(end)
 
     try:
         dataframe = download(tickers=ticker_name,
                              start=start,
                              end=end,
                              period=period,
-                             interval=interval)
+                             interval=interval,
+                             prepost=True,
+                             )
         download_errors = _shared._ERRORS
         if download_errors:
             raise StockDataIntervalValueError(ticker_name, download_errors.get(ticker_name))
@@ -57,7 +64,9 @@ def fetch_data(**kwargs):
                              start=start,
                              end=end,
                              period=period,
-                             interval='60m')
+                             interval='60m',
+                             prepost=True,
+                             )
         if download_errors:
             raise StockDataIntervalValueError(ticker_name, download_errors.get(ticker_name))
 
@@ -78,6 +87,11 @@ def fetch_data(**kwargs):
     connect = sqlite3.connect(path)
     name = "investinfo_data"
     pandas.DataFrame.to_sql(dataframe, name, connect, if_exists='append')
+
+
+def datetime_to_str(date):
+    date = datetime.strftime(date, '%Y-%m-%d')
+    return date
 
 
 if __name__ == "__main__":

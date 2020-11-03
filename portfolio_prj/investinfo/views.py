@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, Http404
 from .models import Ticker, Data
 from .forms import TickerForm, DateForm, PeriodForm, IntervalForm
-from .stockdata import fetch_data
 from datetime import datetime, timedelta, timezone
 import re
 
@@ -103,6 +102,9 @@ def stock_data_ticker(request,
     """
 
     if request.method == 'GET':
+        if not text == 'chart':
+            raise Http404
+
         info = Ticker.available.information(ticker_name=ticker)
 
         if period and interval and kwargs.__len__() < 3:
